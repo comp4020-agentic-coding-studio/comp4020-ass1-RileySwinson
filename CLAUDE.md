@@ -170,6 +170,15 @@ know whose repo it is. Spend the effort on the work.
 - This repo carried its `CLAUDE.md` forward from Crit 2, but not that repo's
   own "what this repo has learned" section --- it was all Astro base-path and
   `assetsPrefix` traps, and this repo isn't on Astro.
+- **Never open `index.html` directly (`file://...`) --- always go through
+  `pnpm dev` and `http://localhost`.** `main.js` is `type="module"` and
+  imports `js/gl-engine.js`, which imports `js/shaders.js`; browsers block a
+  module script from fetching another module over `file://`, so double-clicking
+  the file gives a silent black canvas with no console error, no thrown
+  exception, nothing --- it just never runs. This is a browser security
+  restriction on the `file://` origin, not a bug in the code: `pnpm dev`
+  (`http://`) and the deployed GitHub Pages URL (`https://`) both work fine,
+  since same-origin module fetches are only blocked on `file://`.
 
 ## The path tracer (engine, built first)
 
