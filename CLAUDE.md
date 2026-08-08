@@ -153,6 +153,24 @@ means building legibly is part of building well.
 You don't need a name, a student number, or any identity file in the repo: we
 know whose repo it is. Spend the effort on the work.
 
+## What this repo has learned
+
+- **Bare stack, deliberately.** No Vite, no TypeScript compiling the site
+  itself --- hand-written HTML/CSS/JS. `pnpm build` is `scripts/build.ts`, a
+  plain file copy: every `.html`/`.css`/`.js`/asset file outside `spec/`,
+  `scripts/`, `reflections/` lands in `dist/` unchanged, no bundling. `pnpm
+  dev` is `scripts/dev-server.ts`, a zero-dependency static server over the
+  repo root --- there is no build step to run first, since what ships is what's
+  on disk. `pnpm preview` points the same server at `dist/` instead.
+- **TypeScript stays for tooling, not the site.** `spec/*.test.ts` and
+  `scripts/*.ts` (the build script, the dev server, `check-evidence`) are
+  still typechecked by `pnpm typecheck` --- only the deployed page's own script
+  dropped types, so add a page/asset in whatever this repo's stack is, not by
+  reaching for a bundler.
+- This repo carried its `CLAUDE.md` forward from Crit 2, but not that repo's
+  own "what this repo has learned" section --- it was all Astro base-path and
+  `assetsPrefix` traps, and this repo isn't on Astro.
+
 ## This file is yours
 
 This CLAUDE.md is a starting point, not a fixed rulebook. As you learn what your
