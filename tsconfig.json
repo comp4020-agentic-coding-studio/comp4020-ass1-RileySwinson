@@ -8,11 +8,12 @@
     "strict": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
+    "allowJs": true,
     "skipLibCheck": true,
     "moduleDetection": "force",
     "verbatimModuleSyntax": true,
     "useDefineForClassFields": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["spec", "scripts"]
+  "include": ["spec", "scripts", "checks", "js"]
 }
