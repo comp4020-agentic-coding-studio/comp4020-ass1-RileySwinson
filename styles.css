@@ -1,9 +1,37 @@
+/* Photon: colours bind to mathematical objects, never to UI roles.
+   integrand=orange, density=teal, sample=purple, true-value=green,
+   bias=magenta, geometry=blue, emitters=yellow. UI chrome stays on the
+   neutral bg/panel/text/dim scale so a colour always means the same thing. */
+:root {
+  --bg: #0f1126;
+  --panel: #161936;
+  --text: #f1f2f8;
+  --text-dim: #b1b1b3;
+  --integrand: #ff9400;
+  --density: #00c8d7;
+  --sample: #ad3bff;
+  --true-value: #30e60b;
+  --bias: #ff1ad9;
+  --geometry: #45a1ff;
+  --emitter: #ffe900;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Newsreader", georgia, serif;
+  --font-mono: ui-monospace, "SF Mono", consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  padding: 2rem;
-  font-family: system-ui, sans-serif;
+  padding: 0 1.5rem 4rem;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 1.15rem;
   line-height: 1.6;
-  color: #1a1a1a;
 }
 
 main {
@@ -11,6 +39,103 @@ main {
   margin: 0 auto;
 }
 
+h1,
+h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-top: 2rem;
+}
+
+h2 {
+  font-size: 1.4rem;
+}
+
+.thesis {
+  font-size: 1.3rem;
+  color: var(--text);
+  border-left: 3px solid var(--integrand);
+  padding-left: 1rem;
+}
+
+.lede {
+  color: var(--text-dim);
+}
+
+.site-header {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding-top: 1rem;
+}
+
 a {
-  color: #0b5fff;
+  color: var(--density);
+  text-decoration-thickness: 1px;
+}
+
+section {
+  margin-top: 3rem;
+}
+
+.tracer-panel {
+  background: var(--panel);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.tracer-panel canvas {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: block;
+  border-radius: 0.25rem;
+  background: #000;
+  image-rendering: auto;
+}
+
+.notice {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.tracer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.tracer-controls button {
+  font-family: var(--font-display);
+  font-weight: 700;
+  background: var(--integrand);
+  color: #1a1200;
+  border: none;
+  border-radius: 0.3rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.tracer-controls button:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.tracer-stats {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+
+.caption {
+  color: var(--text-dim);
+  font-size: 1rem;
 }

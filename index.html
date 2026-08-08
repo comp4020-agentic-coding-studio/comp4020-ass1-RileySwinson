@@ -3,21 +3,59 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>COMP4020 prototype</title>
+    <title>Monte Carlo in a real path tracer</title>
+    <meta
+      name="description"
+      content="Noise and bias are the same currency — an interactive explainer of Monte Carlo integration, traced live in GLSL."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:wght@300&family=Space+Grotesk:wght@700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <header>
+    <header class="site-header">
       <nav aria-label="Primary">
-        <a href="./">Home</a>
+        <a href="#engine-check">Engine check</a>
       </nav>
     </header>
     <main>
-      <h1>COMP4020 prototype</h1>
-      <p data-testid="intro">
-        Replace this with your prototype. This week's brief is on the course website;
-        <code>spec/README.md</code> explains how the checks in this repo relate to it.
+      <h1>Monte Carlo in a real path tracer</h1>
+      <p class="thesis">
+        Noise and bias are the same currency. Importance sampling is the only free lunch; everything
+        after it is a trade.
       </p>
+      <p class="lede">
+        Every image on this page is traced live, in your browser, in GLSL — no pre-rendered assets, no
+        simulated noise, no CSS grain. Below is the engine itself: one sphere, one area light, one
+        sampling strategy, rendering in real time before any argument gets built on top of it.
+      </p>
+
+      <section id="engine-check" aria-labelledby="engine-check-heading">
+        <h2 id="engine-check-heading">The engine, tracing live</h2>
+        <div class="tracer-panel" data-tracer-panel>
+          <canvas
+            data-tracer
+            aria-label="Live path-traced render of a sphere on a plane, lit by a rectangular area light"
+          ></canvas>
+          <p class="notice" data-notice hidden></p>
+          <div class="tracer-controls">
+            <button type="button" data-reseed>Reseed</button>
+            <p class="tracer-stats">
+              <span data-stat="samples">0</span> samples/px · MSE vs. reference
+              <span data-stat="mse">—</span>
+            </p>
+          </div>
+        </div>
+        <p class="caption">
+          Every frame adds two more samples per pixel to the accumulated image, drawn with a
+          uniform-over-the-hemisphere sampling strategy — the least clever one, and the one every
+          later section improves on. Reseed to watch it start over with a new random sequence.
+        </p>
+      </section>
     </main>
     <script type="module" src="./main.js"></script>
   </body>
