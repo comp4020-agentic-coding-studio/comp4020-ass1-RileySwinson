@@ -219,6 +219,35 @@ function buildSlides(state) {
   ];
 }
 
+/**
+ * A `view-transition-name` must be unique across the whole document at
+ * once — fine for the carousel, which only ever shows one slide, but the
+ * "show all steps" view below renders every slide's chips simultaneously
+ * *alongside* whichever slide the carousel is currently showing, which
+ * would duplicate every name still on screen. Strips them from this
+ * static copy since nothing here animates in place anyway.
+ */
+function stripViewTransitionNames(node) {
+  if (node.nodeType === Node.ELEMENT_NODE && node.style.viewTransitionName) {
+    node.style.viewTransitionName = "";
+  }
+  for (const child of node.childNodes) stripViewTransitionNames(child);
+  return node;
+}
+
+/**
+ * Renders every slide at once, stacked, for the "show all steps at once"
+ * disclosure — the same slide-builder functions the carousel pages
+ * through one at a time, just all called and appended up front instead of
+ * lazily.
+ */
+function buildAllStepsView(slideBuilders) {
+  const items = slideBuilders.map((build) =>
+    el("li", { className: "all-steps-item" }, [stripViewTransitionNames(build())]),
+  );
+  return el("ol", { className: "all-steps-list" }, items);
+}
+
 function buildModulusDetails() {
   return el("details", { className: "modulus-details" }, [
     el("summary", { text: "What is the modulus operator?" }),
@@ -251,9 +280,14 @@ export function mountLcgWidget(container, defaults) {
   const paramsEl = el("div", { className: "params" }, fieldList.map((f) => f.wrapper));
   const detailsEl = buildModulusDetails();
   const carouselEl = el("div", { className: "widget-computation" });
+  const allStepsBody = el("div", {});
+  const allStepsEl = el("details", { className: "all-steps-details" }, [
+    el("summary", { text: "Show all steps at once" }),
+    allStepsBody,
+  ]);
 
   container.replaceChildren();
-  container.append(paramsEl, detailsEl, carouselEl);
+  container.append(paramsEl, detailsEl, carouselEl, allStepsEl);
   typesetMath([paramsEl, detailsEl]);
 
   function readParams() {
@@ -287,7 +321,14 @@ export function mountLcgWidget(container, defaults) {
     }
   }
 
-  const carouselHandle = mountDotCarousel(carouselEl, buildSlides(readParams()));
+  function renderAllSteps(slides) {
+    allStepsBody.replaceChildren(buildAllStepsView(slides));
+    typesetMath([allStepsBody]);
+  }
+
+  const initialSlides = buildSlides(readParams());
+  const carouselHandle = mountDotCarousel(carouselEl, initialSlides);
+  renderAllSteps(initialSlides);
 
   function recompute() {
     const raw = readParams();
@@ -307,7 +348,9 @@ export function mountLcgWidget(container, defaults) {
       return;
     }
 
-    carouselHandle.setSlides(buildSlides(raw));
+    const slides = buildSlides(raw);
+    carouselHandle.setSlides(slides);
+    renderAllSteps(slides);
   }
 
   for (const field of fieldList) {
