@@ -1,47 +1,32 @@
-import { Tracer } from "./js/gl-engine.js";
+import { mountGeneratorWidget } from "./js/widget.js";
+import { mountLcgWidget } from "./js/lcg-widget.js";
 
-// Every `[data-tracer]` canvas on the page gets its own live path tracer.
-// Pausing offscreen ones matters: a few of these running at once is enough
-// to cook a phone if they all keep tracing while scrolled out of view.
-function setUpTracer(canvas) {
-  const panel = canvas.closest("[data-tracer-panel]") ?? canvas.parentElement;
-  const reseedButton = panel?.querySelector("[data-reseed]");
-  const samplesEl = panel?.querySelector("[data-stat='samples']");
-  const mseEl = panel?.querySelector("[data-stat='mse']");
-  const noticeEl = panel?.querySelector("[data-notice]");
+// Minimal Standard LCG (Lewis, Goodman & Miller): a = 16807, c = 0,
+// m = 2^31 - 1 — the "textbook" example named in the page's own prose.
+const LCG_DEFAULTS = { a: "16807", c: "0", m: "2147483647", seed: "1" };
 
-  const tracer = new Tracer(canvas, {
-    onUnsupported(message) {
-      canvas.hidden = true;
-      if (noticeEl) {
-        noticeEl.hidden = false;
-        noticeEl.textContent = message;
-      }
-    },
-    onStats({ samples }) {
-      if (samplesEl) samplesEl.textContent = samples.toLocaleString();
-    },
-    onError(mse) {
-      if (mseEl) mseEl.textContent = mse.toExponential(2);
-    },
-  });
+// A small order-3 MRG chosen for clarity, not for statistical quality —
+// finding multipliers with good properties is what the simulations page
+// (linked at the bottom of this one) is for.
+const MRG_CONFIG = {
+  id: "mrg",
+  order: 3,
+  hasConstant: false,
+  layout: "carousel",
+  steps: 8,
+  defaults: {
+    modulus: "1000",
+    coefficients: ["7", "5", "3"],
+    seedWindow: ["3", "1", "4"],
+  },
+  labels: {
+    coefficientLabel: (i) => `\\(a_${i + 1}\\)`,
+    seedLabel: (i) => `\\(X_${i}\\)`,
+  },
+};
 
-  reseedButton?.addEventListener("click", () => tracer.reseed());
+const lcgRoot = document.getElementById("lcg-widget");
+if (lcgRoot) mountLcgWidget(lcgRoot, LCG_DEFAULTS);
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) tracer.start();
-        else tracer.pause();
-      }
-    },
-    { threshold: 0.01 },
-  );
-  observer.observe(canvas);
-
-  return tracer;
-}
-
-for (const canvas of document.querySelectorAll("[data-tracer]")) {
-  setUpTracer(canvas);
-}
+const mrgRoot = document.getElementById("mrg-widget");
+if (mrgRoot) mountGeneratorWidget(mrgRoot, MRG_CONFIG);
