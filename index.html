@@ -3,57 +3,167 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Monte Carlo in a real path tracer</title>
+    <title>How Computers Fake Randomness</title>
     <meta
       name="description"
-      content="Noise and bias are the same currency — an interactive explainer of Monte Carlo integration, traced live in GLSL."
+      content="Computers can't generate a truly random number — an interactive explainer of pseudo-random number generators, and the linear congruential and multiple recursive generators that fake it."
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Newsreader:wght@300&family=Space+Grotesk:wght@700&display=swap"
-      rel="stylesheet"
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232454e8'/%3E%3Ctext x='16' y='23' font-family='ui-monospace,monospace' font-size='18' fill='%23fff' text-anchor='middle'%3EX%3C/text%3E%3C/svg%3E"
     />
     <link rel="stylesheet" href="./styles.css" />
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [
+            ["\\(", "\\)"],
+            ["$", "$"],
+          ],
+          displayMath: [
+            ["\\[", "\\]"],
+            ["$$", "$$"],
+          ],
+        },
+        options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] },
+      };
+    </script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
   </head>
   <body>
     <header class="site-header">
       <nav aria-label="Primary">
-        <a href="#engine-check">Engine check</a>
+        <a href="#intro">Intro</a>
+        <a href="#lcg">LCG</a>
+        <a href="#mrg">MRG</a>
+        <a href="./simulation.html">Try it</a>
       </nav>
     </header>
     <main>
-      <h1>Monte Carlo in a real path tracer</h1>
-      <p class="thesis">
-        Noise and bias are the same currency. Importance sampling is the only free lunch; everything
-        after it is a trade.
-      </p>
-      <p class="lede">
-        Every image on this page is traced live, in your browser, in GLSL — no pre-rendered assets, no
-        simulated noise, no CSS grain. Below is the engine itself: one sphere, one area light, one
-        sampling strategy, rendering in real time before any argument gets built on top of it.
-      </p>
+      <h1>How Computers Fake Randomness</h1>
 
-      <section id="engine-check" aria-labelledby="engine-check-heading">
-        <h2 id="engine-check-heading">The engine, tracing live</h2>
-        <div class="tracer-panel" data-tracer-panel>
-          <canvas
-            data-tracer
-            aria-label="Live path-traced render of a sphere on a plane, lit by a rectangular area light"
-          ></canvas>
-          <p class="notice" data-notice hidden></p>
-          <div class="tracer-controls">
-            <button type="button" data-reseed>Reseed</button>
-            <p class="tracer-stats">
-              <span data-stat="samples">0</span> samples/px · MSE vs. reference
-              <span data-stat="mse">—</span>
-            </p>
-          </div>
-        </div>
-        <p class="caption">
-          Every frame adds two more samples per pixel to the accumulated image, drawn with a
-          uniform-over-the-hemisphere sampling strategy — the least clever one, and the one every
-          later section improves on. Reseed to watch it start over with a new random sequence.
+      <section id="intro">
+        <p class="thesis">
+          The modern world is built on computers. While computers are very complicated machines,
+          there are various recurring fundamental problems computers are tasked with that underpin
+          the foundation of our modern world. One of these tasks appears so intuitive, yet is
+          something computers cannot easily solve: generating a random number.
+        </p>
+        <p>
+          In our world, generating a random outcome is relatively easy: roll a dice, flip a coin,
+          or spin a wheel. However, even these outcomes are not truly random — they are modelled
+          by the laws of physics. True randomness occurs in processes that are practically or
+          literally impossible to model: atomic radioactive decay, thermal noise, etc.
+        </p>
+        <p>
+          While some computers generate hardware random numbers using these methods, these are
+          not widely present and typically too slow for usage in modern computing.
+        </p>
+        <p>
+          Consequently, computers typically use pseudo-random number generators. These generators
+          use applied statistics to operate on some sequence of numbers to return a new sequence
+          of numbers which is statistically indistinguishable from true randomness, called
+          <strong>Pseudo-Random-Number Generators</strong> (PRNGs). These PRNGs have far-reaching
+          applications from cryptography (which underpins much of cybersecurity), computer
+          simulations, gambling, and many others.
+        </p>
+        <p>
+          Different applications have different requirements on what is considered a "good"
+          random number generator. For example, some methods are reversible, meaning the
+          algorithm can be reverse-engineered from a sequence of generated numbers. A computer
+          simulation might not care as long as the numbers are statistically random; however,
+          this predictability would be catastrophic in cases such as securing banking
+          transactions.
+        </p>
+        <p>
+          This explainer focuses on two primitive types of PRNGs: Linear Congruential Generators
+          (LCGs) and Multiple Recursive Generators (MRGs).
+        </p>
+        <p class="lede">
+          If you are not mathematically inclined, do not worry: this explainer is designed to be
+          accessible.
+        </p>
+      </section>
+
+      <section id="lcg" aria-labelledby="lcg-heading">
+        <h2 id="lcg-heading">The Linear Congruential Generator</h2>
+        <p>
+          The oldest and simplest PRNG is the LCG, introduced by Lehmer in 1949. The term LCG
+          defines a set of generators defined by three constant integer values:
+        </p>
+        <ul class="term-list">
+          <li>\(a\), the multiplier;</li>
+          <li>\(c\), the increment; and</li>
+          <li>\(m\), the modulus.</li>
+        </ul>
+        <p>
+          Once defined, the generator takes an integer seed value \(X\) and generates a stream of
+          pseudo-random numbers by recursive application of:
+        </p>
+        <p class="equation">
+          \[ X_0 = X \]
+          \[ X_t = (a X_{t-1} + c) \ \text{mod}\ m \]
+        </p>
+        <p>where \(X_t\) is the \(t\)'th random number.</p>
+        <p>
+          Computers typically find values in the range \([0, 1)\) more useful, so the generator
+          returns the normalised result of
+        </p>
+        <p class="equation">\[ U_t = \frac{X_t}{m}. \]</p>
+        <p>
+          While this is a bit of math, it is not as scary as it may look. The following widget
+          walks through each step of the process.
+        </p>
+
+        <div id="lcg-widget" class="widget" data-widget-root></div>
+      </section>
+
+      <section id="mrg" aria-labelledby="mrg-heading">
+        <h2 id="mrg-heading">The multiple recursive generator</h2>
+        <p>
+          An LCG's entire state is one number — whatever it just output. That's also its weakness:
+          with so little memory, the sequence of triples \((U_t, U_{t+1}, U_{t+2})\) from an LCG
+          can fall into visible geometric structure instead of filling space evenly, no matter how
+          you choose <code>a</code>, <code>c</code>, and <code>m</code>.
+        </p>
+        <p>
+          A <strong>multiple recursive generator</strong> (MRG) of order <code>k</code> fixes this
+          by remembering the last <code>k</code> outputs instead of just one — a
+          <strong>moving window</strong> of state that slides forward one value at a time. There's
+          no increment term; each new value is a weighted sum of everything currently in the
+          window:
+        </p>
+        <p class="equation">
+          \[ X_t = (a_1 X_{t-1} + a_2 X_{t-2} + \cdots + a_k X_{t-k}) \bmod m \qquad U_t = X_t / m \]
+        </p>
+        <p>
+          An LCG is just the case <code>k = 1</code>, with an increment bolted back on. Every time
+          this generator produces a value, the window shifts: the oldest of the <code>k</code>
+          remembered values is dropped, and the new one takes its place at the front.
+        </p>
+
+        <div id="mrg-widget" class="widget" data-widget-root></div>
+      </section>
+
+      <section id="what-next" aria-labelledby="what-next-heading">
+        <h2 id="what-next-heading">What this buys you for Monte Carlo</h2>
+        <p>
+          For Monte Carlo work, the statistics that matter most are simple ones: does the output
+          stream have mean <code>≈ 0.5</code> and variance <code>≈ 1/12</code>, the values a true
+          <code>U(0,1)</code> sequence would have — and, just as important, are consecutive
+          outputs uncorrelated with each other? A generator can pass the first test and still fail
+          the second, which is exactly the kind of structure a bad choice of <code>a</code>,
+          <code>c</code>, or <code>m</code> produces.
+        </p>
+        <p class="cta">
+          <a href="./simulation.html"
+            >Try it yourself: find values for the generators above that produce these
+            statistics, then click the example button to see one answer &rarr;</a
+          >
         </p>
       </section>
     </main>

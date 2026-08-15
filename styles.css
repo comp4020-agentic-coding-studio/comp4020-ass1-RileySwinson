@@ -1,141 +1,507 @@
-/* Photon: colours bind to mathematical objects, never to UI roles.
-   integrand=orange, density=teal, sample=purple, true-value=green,
-   bias=magenta, geometry=blue, emitters=yellow. UI chrome stays on the
-   neutral bg/panel/text/dim scale so a colour always means the same thing. */
-:root {
-  --bg: #0f1126;
-  --panel: #161936;
-  --text: #f1f2f8;
-  --text-dim: #b1b1b3;
-  --integrand: #ff9400;
-  --density: #00c8d7;
-  --sample: #ad3bff;
-  --true-value: #30e60b;
-  --bias: #ff1ad9;
-  --geometry: #45a1ff;
-  --emitter: #ffe900;
-  --font-display: "Space Grotesk", system-ui, sans-serif;
-  --font-body: "Newsreader", georgia, serif;
-  --font-mono: ui-monospace, "SF Mono", consolas, monospace;
-}
-
 * {
   box-sizing: border-box;
 }
 
+/*
+ * Firefox's own built-in "Dark" theme palette, not an invented dark
+ * scheme: --bg/--panel match Firefox's "frame"/"toolbar" colours
+ * (#1c1b22 / #2b2a33), --text is Firefox's in-content dark text
+ * (#fbfbfe), and --accent is Photon Blue 40 (#45a1ff) — the same blue
+ * Firefox itself uses for links and focus states on dark backgrounds.
+ * --text-dim/--border/--accent-soft are opacity-based tints of the
+ * confirmed colours above rather than separately-sourced hex values.
+ */
+:root {
+  --bg: #1c1b22;
+  --panel: #2b2a33;
+  --border: rgb(251 251 254 / 15%);
+  --text: #fbfbfe;
+  --text-dim: rgb(251 251 254 / 65%);
+  --accent: #45a1ff;
+  --accent-soft: rgb(69 161 255 / 18%);
+  --danger: #ff0039;
+  --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", consolas, monospace;
+
+  /*
+   * One colour per traced quantity in the LCG walkthrough (js/lcg-widget.js)
+   * — a variable keeps its colour whether it's shown as a letter or as its
+   * substituted number, so a reader can trace where each number came from.
+   * Chosen from the Photon colour scale (Firefox's own design tokens) for
+   * a family that reads clearly on the dark theme above.
+   */
+  --var-a: #ff9400;
+  --var-c: #30e60b;
+  --var-m: #ad3bff;
+  --var-seed: #00c8d7;
+  --var-result: #ffe900;
+}
+
+html {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
-  padding: 0 1.5rem 4rem;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
-  font-weight: 300;
-  font-size: 1.15rem;
   line-height: 1.6;
 }
 
-main {
-  max-width: 40rem;
+a {
+  color: var(--accent);
+}
+
+.site-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.site-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  max-width: 860px;
   margin: 0 auto;
 }
 
-h1,
-h2 {
-  font-family: var(--font-display);
-  font-weight: 700;
-  line-height: 1.15;
+.site-header nav a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.site-header nav a:hover,
+.site-header nav a:focus-visible {
+  text-decoration: underline;
+}
+
+main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
 }
 
 h1 {
-  font-size: clamp(2rem, 5vw, 3rem);
-  margin-top: 2rem;
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  margin: 0 0 0.75rem;
+  line-height: 1.15;
 }
 
 h2 {
-  font-size: 1.4rem;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
 }
 
 .thesis {
-  font-size: 1.3rem;
-  color: var(--text);
-  border-left: 3px solid var(--integrand);
-  padding-left: 1rem;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .lede {
   color: var(--text-dim);
 }
 
-.site-header {
-  max-width: 40rem;
-  margin: 0 auto;
-  padding-top: 1rem;
+p {
+  overflow-wrap: anywhere;
 }
 
-a {
-  color: var(--density);
-  text-decoration-thickness: 1px;
+.term-list {
+  margin: 0.75rem 0 1.25rem;
+  padding-left: 1.25rem;
 }
 
-section {
-  margin-top: 3rem;
+.term-list li {
+  margin: 0.25rem 0;
 }
 
-.tracer-panel {
-  background: var(--panel);
-  border-radius: 0.5rem;
-  padding: 1rem;
-}
-
-.tracer-panel canvas {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  display: block;
-  border-radius: 0.25rem;
-  background: #000;
-  image-rendering: auto;
-}
-
-.notice {
-  color: var(--text-dim);
+code {
   font-family: var(--font-mono);
+  background: var(--accent-soft);
+  border-radius: 0.25rem;
+  padding: 0.1rem 0.3rem;
+}
+
+.equation {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 34rem;
+}
+
+caption {
+  text-align: left;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+thead th {
+  border-bottom: 2px solid var(--text);
+}
+
+.cta {
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 1.5rem;
+  background: var(--accent-soft);
+  border-radius: 0.75rem;
+}
+
+/* Generator widgets (main.js / js/widget.js) */
+
+.widget {
+  margin: 1.5rem 0 2.5rem;
+  padding: 1.25rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+}
+
+.params {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.field-label {
+  font-family: var(--font-mono);
+  font-weight: 600;
   font-size: 0.9rem;
 }
 
-.tracer-controls {
+.field-input {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  min-height: 2.75rem;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.field-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.field-input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.field-error {
+  color: var(--danger);
+  font-size: 0.8rem;
+  min-height: 1.1em;
+  margin: 0;
+}
+
+.widget-stream {
+  margin: 1rem 0;
+}
+
+.stream {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0;
+  margin: 0;
+}
+
+.stream-value {
+  font-family: var(--font-mono);
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.9rem;
+}
+
+.stream-note {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.widget-computation {
+  margin-top: 1.5rem;
+}
+
+/* Colour-coded math fragments (js/lcg-widget.js, js/step-card.js) */
+
+.math-chip {
+  display: inline-block;
+}
+
+.var-a {
+  color: var(--var-a);
+}
+
+.var-c {
+  color: var(--var-c);
+}
+
+.var-m {
+  color: var(--var-m);
+}
+
+.var-seed {
+  color: var(--var-seed);
+}
+
+.var-result {
+  color: var(--var-result);
+}
+
+/* LCG walkthrough: one computation, one micro-step per slide */
+
+.modulus-details {
+  margin: 0 0 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg);
+}
+
+.modulus-details summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.modulus-details p {
+  margin: 0.75rem 0 0;
+  color: var(--text-dim);
+}
+
+.dot-carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dot-carousel-viewport {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  min-height: 7rem;
+}
+
+.slide-text {
+  margin: 0 0 0.75rem;
+  color: var(--text-dim);
+}
+
+.slide-math {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.dot-carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.dot-carousel-dot {
+  /* box-sizing: border-box (global) means width/height include padding,
+     so the visible content-box dot is (width - 2*padding) = 0.6rem,
+     inside a 1.5rem hit target. */
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0.45rem;
+  background-color: rgb(251 251 254 / 40%);
+  background-clip: content-box;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.dot-carousel-dot:hover {
+  background-color: rgb(251 251 254 / 60%);
+}
+
+.dot-carousel-dot.is-active {
+  background-color: var(--accent);
+}
+
+/* Firefox doesn't support the View Transitions API used for the
+   crossfade/morph between slides above — the carousel still works there,
+   it just swaps instantly instead of animating. Chrome (this course's
+   marking browser) gets the animation. */
+::view-transition-group(*) {
+  animation-duration: 0.4s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* MRG: one card per generated value, in a Prev/Next carousel */
+
+.step-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.85rem 1rem;
+  overflow-x: auto;
+}
+
+.step-label {
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.step-line {
+  font-family: var(--font-mono);
+  margin: 0.15rem 0;
+  overflow-wrap: anywhere;
+}
+
+/* MRG: paginated carousel + moving window */
+
+.carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.window {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+}
+
+.window-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--bg);
+  min-width: 4.5rem;
+}
+
+.window-slot-oldest {
+  border-color: var(--danger);
+  border-style: dashed;
+}
+
+.window-slot-label {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.window-slot-value {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.carousel-controls {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-top: 0.75rem;
   flex-wrap: wrap;
 }
 
-.tracer-controls button {
-  font-family: var(--font-display);
-  font-weight: 700;
-  background: var(--integrand);
-  color: #1a1200;
-  border: none;
-  border-radius: 0.3rem;
-  padding: 0.5rem 1rem;
+.carousel-prev,
+.carousel-next {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  min-height: 2.75rem;
   cursor: pointer;
 }
 
-.tracer-controls button:focus-visible {
-  outline: 2px solid var(--text);
-  outline-offset: 2px;
+.carousel-prev:disabled,
+.carousel-next:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-.tracer-stats {
+.carousel-prev:hover:not(:disabled),
+.carousel-next:hover:not(:disabled) {
+  background: var(--accent);
+  color: #1c1b22;
+}
+
+.carousel-label {
   margin: 0;
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
+  font-weight: 600;
   color: var(--text-dim);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  text-align: center;
+  flex: 1;
 }
 
-.caption {
-  color: var(--text-dim);
-  font-size: 1rem;
+@media (width <= 480px) {
+  main {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  h2 {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+  }
+
+  .widget {
+    padding: 1rem 0.85rem;
+  }
+
+  .carousel-controls {
+    justify-content: center;
+  }
 }
