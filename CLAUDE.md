@@ -171,52 +171,14 @@ know whose repo it is. Spend the effort on the work.
   own "what this repo has learned" section --- it was all Astro base-path and
   `assetsPrefix` traps, and this repo isn't on Astro.
 - **Never open `index.html` directly (`file://...`) --- always go through
-  `pnpm dev` and `http://localhost`.** `main.js` is `type="module"` and
-  imports `js/gl-engine.js`, which imports `js/shaders.js`; browsers block a
-  module script from fetching another module over `file://`, so double-clicking
-  the file gives a silent black canvas with no console error, no thrown
-  exception, nothing --- it just never runs. This is a browser security
-  restriction on the `file://` origin, not a bug in the code: `pnpm dev`
-  (`http://`) and the deployed GitHub Pages URL (`https://`) both work fine,
-  since same-origin module fetches are only blocked on `file://`.
-
-## The path tracer (engine, built first)
-
-`js/gl-engine.js` runs a live WebGL2 Monte Carlo path tracer: one sphere on a
-plane, one rectangular area light, direct lighting only, ping-pong `RGBA32F`
-(or `RGBA16F` fallback) accumulation. `js/shaders.js` holds the GLSL as
-template strings; `js/sampling.js` holds the same sampling formulas in plain
-JS, because a shader can't be unit-tested and the JS mirror can
-(`checks/sampling.test.ts`).
-
-- **`state * constant` overflows in JS before it does in GLSL.** The PCG hash
-  multiplies a uint32 by a ~750M constant, which crosses 2^53 (JS's safe
-  integer limit) well before it crosses 2^32 (GLSL's real wraparound). Plain
-  `*` silently lost precision and measurably biased the JS mirror's RNG (mean
-  0.4962 instead of 0.5 over 2M draws — not noise, a real bug). `Math.imul`
-  does correct 32-bit integer multiplication and fixed it. GLSL's own `uint`
-  arithmetic never had this problem; only the JS mirror needed the fix. If a
-  future check's numbers look "close but not quite," check for this before
-  blaming sample count.
-- **MSE is a full-buffer CPU readback, not the planned 64×64 downsample
-  shader.** At 240×180 the whole accumulation buffer is ~173KB — cheap enough
-  to `readPixels` directly once a second and diff on the CPU. Simpler than
-  writing a second shader pass for the same observable behaviour (a live MSE
-  readout); revisit only if the resolution grows enough to make that read
-  expensive.
-- **Trace resolution is fixed at 240×180 regardless of device or CSS size** —
-  never read `devicePixelRatio` for the trace buffers, only for nothing (i.e.
-  don't). The canvas's CSS size scales the display; the buffer size never
-  changes. This is what makes a resize mid-interaction free instead of a
-  re-render.
-- **Orthonormal basis from a normal uses Duff et al.'s branchless method**
-  (2017, "Building an Orthonormal Basis, Revisited"), not cross-with-an-axis
-  — the naive approach degenerates when the normal is near that axis, which a
-  sphere guarantees will happen somewhere on its surface.
-- Each canvas pauses its render loop via `IntersectionObserver` when scrolled
-  offscreen, and `webglcontextlost` cancels the loop and shows a message
-  rather than silently freezing. Both matter once more than one tracer is on
-  the page at once.
+  `pnpm dev` and `http://localhost`.** A `type="module"` script that imports
+  another local module gets silently blocked by the browser when loaded over
+  `file://` --- no console error, no thrown exception, it just never runs.
+  This is a browser security restriction on the `file://` origin, not a bug in
+  the code: `pnpm dev` (`http://`) and the deployed GitHub Pages URL
+  (`https://`) both work fine, since same-origin module fetches are only
+  blocked on `file://`. Bit us once with a WebGL engine's module chain; watch
+  for it again with any multi-file JS.
 
 ## This file is yours
 
