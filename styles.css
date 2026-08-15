@@ -417,6 +417,57 @@ thead th {
   animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* LCG live stream (js/lcg-stream-widget.js): a running generator with a
+   console-style log — plain text, not MathJax, since it can tick several
+   times a second and re-typesetting that fast would be slow and janky. */
+
+.rate-field {
+  justify-content: center;
+}
+
+.rate-input {
+  accent-color: var(--accent);
+  width: 100%;
+}
+
+.rate-value {
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.console {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  height: 12rem;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.console-line {
+  margin: 0.2rem 0;
+  color: var(--text-dim);
+  overflow-wrap: anywhere;
+}
+
+.console-line-repeat {
+  color: var(--var-result);
+  font-weight: 600;
+}
+
+.console-status {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  text-align: center;
+  flex: 1;
+}
+
 /* MRG: one card per generated value, in a Prev/Next carousel */
 
 .step-card {

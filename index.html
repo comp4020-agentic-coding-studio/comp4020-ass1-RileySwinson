@@ -120,6 +120,43 @@
         </p>
 
         <div id="lcg-widget" class="widget" data-widget-root></div>
+
+        <p>
+          Applying this process recursively generates a stream of numbers: each output becomes the
+          next step's input. The widget below takes your values and generates such a stream —
+          notice that starting from the same generator and the same seed always produces the exact
+          same sequence, every digit, every time. That's because the generator is
+          <strong>deterministic</strong>: with a fixed formula and a fixed seed, every future output
+          is already decided before it's computed — there's no hidden randomness left to vary
+          between runs.
+        </p>
+        <p>
+          While this generator produces numbers that look random, it has a real problem: the
+          sequence eventually repeats itself. Take \(a = 3\), \(c = 0\), \(m = 10\), starting from
+          the seed \(X = 1\):
+        </p>
+
+        <div id="lcg-stream-widget" class="widget" data-widget-root></div>
+
+        <p>
+          The values repeat themselves after just 4 iterations. This is a problem, because once
+          they repeat, our numbers no longer look random — the sequence has nothing left to give.
+          The number of values a generator produces before repeating is called its
+          <strong>period</strong>.
+        </p>
+        <p>
+          When we run computer simulations, it's important that our numbers stay unpredictable for
+          as long as the simulation runs. We can maximise an LCG's period by making
+          <code>m</code> a prime number and <code>a</code> a primitive root modulo <code>m</code> —
+          but even then, the period is at best <code>m − 1</code>, because the nonzero remainders
+          modulo a prime <code>m</code> form a group of exactly that size, and repeated
+          multiplication can never produce anything outside it. That sounds like a lot — our
+          earlier example already reaches <code>2,147,483,646</code> — but the standard for serious
+          simulation work is a period on the order of <code>10⁵⁰</code>, because a single run can
+          consume billions of random numbers, repeated across many runs, and a period anywhere near
+          what a plain LCG offers risks the sequence quietly looping back on itself partway through.
+        </p>
+        <p>So, we need a better structure.</p>
       </section>
 
       <section id="mrg" aria-labelledby="mrg-heading">
