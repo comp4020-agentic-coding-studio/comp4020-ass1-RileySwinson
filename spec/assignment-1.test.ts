@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { mountGeneratorWidget } from "../js/widget.js";
+import { mountLcgWidget } from "../js/lcg-widget.js";
 
 // The published spec for assignment-1 (see spec/README.md for how checks
 // relate to it). Most lines are already covered elsewhere:
@@ -11,46 +11,29 @@ import { mountGeneratorWidget } from "../js/widget.js";
 //   no unit test replaces opening it in a browser at 390×844 and 1920×1080.
 //
 // One line is ours to assert: the visitor does something that changes what
-// they see. The MRG widget's carousel is this page's core interaction —
-// clicking "Next" is the single most robust event to dispatch here (no
-// string-parsing/validation edge cases the way editing a number field has),
-// and it's the interaction unique to this page's design.
+// they see. The LCG walkthrough's dot-carousel is this page's core
+// interaction — clicking "Next" is the single most robust event to dispatch
+// here (no string-parsing/validation edge cases the way editing a number
+// field has).
 
-const MRG_CONFIG = {
-  id: "mrg-spec-test",
-  order: 3,
-  hasConstant: false,
-  layout: "carousel",
-  steps: 8,
-  defaults: {
-    modulus: "1000",
-    coefficients: ["7", "5", "3"],
-    seedWindow: ["3", "1", "4"],
-  },
-  labels: {
-    coefficientLabel: (i: number) => `a${i + 1}`,
-    seedLabel: (i: number) => `X${i}`,
-  },
-};
+const LCG_DEFAULTS = { a: "16807", c: "0", m: "2147483647", seed: "1" };
 
 describe("assignment 1 spec", () => {
-  it("clicking the MRG carousel's Next button changes what the visitor sees", () => {
+  it("clicking the LCG carousel's Next button changes what the visitor sees", () => {
     const container = document.createElement("div");
     document.body.append(container);
 
-    mountGeneratorWidget(container, MRG_CONFIG);
+    mountLcgWidget(container, LCG_DEFAULTS);
 
-    const label = container.querySelector("[data-step-label]");
-    const windowStrip = container.querySelector(".carousel-window");
-    const stepBefore = label?.textContent;
-    const windowBefore = windowStrip?.textContent;
+    const label = container.querySelector(".carousel-label");
+    const viewport = container.querySelector(".dot-carousel-viewport");
+    const labelBefore = label?.textContent;
+    const viewportBefore = viewport?.textContent;
 
-    container
-      .querySelector("[data-carousel-next]")
-      ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    container.querySelector(".carousel-next")?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
-    expect(label?.textContent).toBe("Step 2 of 8");
-    expect(label?.textContent).not.toBe(stepBefore);
-    expect(windowStrip?.textContent).not.toBe(windowBefore);
+    expect(label?.textContent).toBe("Step 2 of 9");
+    expect(label?.textContent).not.toBe(labelBefore);
+    expect(viewport?.textContent).not.toBe(viewportBefore);
   });
 });

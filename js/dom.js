@@ -1,7 +1,7 @@
 // Tiny DOM-building helper shared by every renderer in js/ — avoids
 // repeating the same createElement/className/append boilerplate across
-// step-card.js, carousel-view.js, dot-carousel.js, lcg-widget.js,
-// stream.js, and widget.js.
+// dot-carousel.js, lcg-widget.js, lcg-stream-widget.js, mrg-widget.js,
+// mrg-stream-widget.js, and term-list.js.
 
 /**
  * Creates an element. `children` may mix strings (become text nodes) and
