@@ -174,7 +174,7 @@ thead th {
   border-radius: 0.75rem;
 }
 
-/* Generator widgets (main.js / js/widget.js) */
+/* Generator widgets (main.js and the js/*-widget.js modules it mounts) */
 
 .widget {
   margin: 1.5rem 0 2.5rem;
@@ -230,39 +230,70 @@ thead th {
   margin: 0;
 }
 
-.widget-stream {
-  margin: 1rem 0;
+/* Variable-order term list (js/term-list.js): add/remove (a_i, X_i) rows */
+
+.mrg-terms {
+  margin: 0 0 1.5rem;
 }
 
-.stream {
-  list-style: none;
+.term-rows {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  padding: 0;
-  margin: 0;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
-.stream-value {
-  font-family: var(--font-mono);
-  background: var(--accent-soft);
-  color: var(--accent);
-  border-radius: 0.35rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.9rem;
+.term-row {
+  display: grid;
+
+  /* minmax(0, 1fr), not bare 1fr — a fr track won't shrink past its
+     content's intrinsic width by default, and a text input's natural
+     width is wide enough to overflow a narrow phone screen instead of
+     actually sharing the row proportionally. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: end;
 }
 
-.stream-note {
+.term-remove {
+  height: 2.75rem;
+  width: 2.75rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
   color: var(--text-dim);
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.term-remove:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.term-add {
+  font-family: var(--font-body);
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.4rem;
+  border: 1px dashed var(--accent);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.term-add:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  border-style: solid;
 }
 
 .widget-computation {
   margin-top: 1.5rem;
 }
 
-/* Colour-coded math fragments (js/lcg-widget.js, js/step-card.js) */
+/* Colour-coded math fragments (js/lcg-widget.js, js/mrg-widget.js) */
 
 .math-chip {
   display: inline-block;
@@ -466,78 +497,6 @@ thead th {
   font-size: 0.9rem;
   text-align: center;
   flex: 1;
-}
-
-/* MRG: one card per generated value, in a Prev/Next carousel */
-
-.step-card {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  padding: 0.85rem 1rem;
-  overflow-x: auto;
-}
-
-.step-label {
-  margin: 0 0 0.35rem;
-  font-weight: 600;
-  font-size: 0.8rem;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.step-line {
-  font-family: var(--font-mono);
-  margin: 0.15rem 0;
-  overflow-wrap: anywhere;
-}
-
-/* MRG: paginated carousel + moving window */
-
-.carousel {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.window {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0;
-  margin: 0;
-}
-
-.window-slot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  background: var(--bg);
-  min-width: 4.5rem;
-}
-
-.window-slot-oldest {
-  border-color: var(--danger);
-  border-style: dashed;
-}
-
-.window-slot-label {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--text-dim);
-}
-
-.window-slot-value {
-  font-family: var(--font-mono);
-  font-weight: 600;
-  overflow-wrap: anywhere;
-  text-align: center;
 }
 
 .carousel-controls {

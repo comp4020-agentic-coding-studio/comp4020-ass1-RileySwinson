@@ -17,6 +17,7 @@ import { typesetMath } from "./mathjax.js";
  */
 export function mountDotCarousel(container, slides) {
   let currentIndex = 0;
+  let transitioning = false;
 
   const viewport = el("div", { className: "dot-carousel-viewport" });
   const dotsEl = el("div", {
@@ -48,20 +49,36 @@ export function mountDotCarousel(container, slides) {
     );
   }
 
+  // Disabled both at the ends and, separately, for the whole time a view
+  // transition is in flight — clicking Next again before a ~0.4s
+  // transition finishes starts a second one on top of the first, and the
+  // browser's handling of that overlap looks like a visible glitch (an
+  // old value briefly stuck mid-animation over the new slide).
+  function updateControlsDisabled() {
+    prevButton.disabled = transitioning || currentIndex === 0;
+    nextButton.disabled = transitioning || currentIndex === slides.length - 1;
+    for (const dot of dotsEl.children) dot.disabled = transitioning;
+  }
+
   function renderCurrent() {
     viewport.replaceChildren(slides[currentIndex]());
     [...dotsEl.children].forEach((dot, i) => dot.classList.toggle("is-active", i === currentIndex));
     label.textContent = `Step ${currentIndex + 1} of ${slides.length}`;
-    prevButton.disabled = currentIndex === 0;
-    nextButton.disabled = currentIndex === slides.length - 1;
+    updateControlsDisabled();
     typesetMath([viewport]);
   }
 
   function goTo(index) {
-    if (index < 0 || index >= slides.length || index === currentIndex) return;
+    if (transitioning || index < 0 || index >= slides.length || index === currentIndex) return;
     currentIndex = index;
     if (document.startViewTransition) {
-      document.startViewTransition(() => renderCurrent());
+      transitioning = true;
+      updateControlsDisabled();
+      const transition = document.startViewTransition(() => renderCurrent());
+      transition.finished.finally(() => {
+        transitioning = false;
+        updateControlsDisabled();
+      });
     } else {
       renderCurrent();
     }

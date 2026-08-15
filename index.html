@@ -162,28 +162,53 @@
       <section id="mrg" aria-labelledby="mrg-heading">
         <h2 id="mrg-heading">The multiple recursive generator</h2>
         <p>
-          An LCG's entire state is one number — whatever it just output. That's also its weakness:
-          with so little memory, the sequence of triples \((U_t, U_{t+1}, U_{t+2})\) from an LCG
-          can fall into visible geometric structure instead of filling space evenly, no matter how
-          you choose <code>a</code>, <code>c</code>, and <code>m</code>.
+          An LCG generates each number based on the previous one. A <strong>multiple recursive
+          generator</strong> (MRG) generates each number based on the previous <code>k</code>
+          numbers — consequently, it requires <code>k</code> seed values to start. Otherwise, it's
+          quite similar.
         </p>
         <p>
-          A <strong>multiple recursive generator</strong> (MRG) of order <code>k</code> fixes this
-          by remembering the last <code>k</code> outputs instead of just one — a
-          <strong>moving window</strong> of state that slides forward one value at a time. There's
-          no increment term; each new value is a weighted sum of everything currently in the
-          window:
+          An MRG first picks some number <code>k</code> of prior values to base each new number on.
+          Then it selects integers <code>a_1, …, a_k</code>, the multipliers, and <code>m</code>,
+          the modulus.
+        </p>
+        <p>
+          To start an MRG, choose <code>X_1</code> through <code>X_k</code> seed values. Each seed
+          value is multiplied by its own constant, and those values are summed. So, starting from
+          any <code>t &gt; k</code> (since all <code>k</code> seed values are needed first), the
+          <code>t</code>'th random number is
         </p>
         <p class="equation">
-          \[ X_t = (a_1 X_{t-1} + a_2 X_{t-2} + \cdots + a_k X_{t-k}) \bmod m \qquad U_t = X_t / m \]
+          \[ X_t = (a_1 X_{t-1} + a_2 X_{t-2} + \cdots + a_k X_{t-k}) \ \text{mod} \ m \]
         </p>
-        <p>
-          An LCG is just the case <code>k = 1</code>, with an increment bolted back on. Every time
-          this generator produces a value, the window shifts: the oldest of the <code>k</code>
-          remembered values is dropped, and the new one takes its place at the front.
-        </p>
+        <p>and then normalised the same way as an LCG:</p>
+        <p class="equation">\[ U_t = \frac{X_t}{m}. \]</p>
 
         <div id="mrg-widget" class="widget" data-widget-root></div>
+
+        <p>
+          This method seems very similar to an LCG, so what makes it special? By careful selection
+          of the values <code>a_1</code> through <code>a_k</code> and <code>m</code>, we can reach
+          some very large periods.
+        </p>
+        <p>
+          It's difficult to compute the period of an arbitrary arrangement of values, but the
+          maximum possible period was characterised by Zierler (1959), through the theory of
+          <strong>primitive polynomials</strong> over finite fields, and later applied specifically
+          to random number generators by L'Ecuyer: an order-<code>k</code> MRG reaches the maximum
+          possible period of <code>m^k − 1</code> exactly when <code>m</code> is prime and its
+          characteristic polynomial is primitive modulo <code>m</code> — the same shape of
+          condition an LCG needs (<code>m</code> prime, <code>a</code> a primitive root), just one
+          dimension higher.
+        </p>
+
+        <div id="mrg-stream-widget" class="widget" data-widget-root></div>
+
+        <p>
+          This period is more than sufficient for simulation work. But all of this assumes we
+          already know these generators are statistically indistinguishable from true random
+          numbers. How can we actually confirm that?
+        </p>
       </section>
 
       <section id="what-next" aria-labelledby="what-next-heading">
