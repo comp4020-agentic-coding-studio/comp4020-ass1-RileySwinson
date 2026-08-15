@@ -1,5 +1,5 @@
 import { el } from "./dom.js";
-import { buildField } from "./field.js";
+import { buildField, buildRateField } from "./field.js";
 import { parseBigIntField, validateParams, mod } from "./recurrence.js";
 
 const MAX_CONSOLE_LINES = 200;
@@ -8,20 +8,6 @@ const MAX_SEARCH_TICKS = 1000;
 
 function fmt(value) {
   return value.toLocaleString("en-AU");
-}
-
-function buildRateField(id, defaultRate) {
-  const input = el("input", {
-    className: "rate-input",
-    attrs: { type: "range", id, min: "1", max: "20", step: "1", value: String(defaultRate) },
-  });
-  const valueEl = el("output", { className: "rate-value", attrs: { for: id }, text: `${defaultRate}/s` });
-  const label = el("label", { className: "field-label", attrs: { for: id }, text: "Numbers per second" });
-  const wrapper = el("div", { className: "field rate-field" }, [label, input, valueEl]);
-  input.addEventListener("input", () => {
-    valueEl.textContent = `${input.value}/s`;
-  });
-  return { wrapper, input };
 }
 
 /**
