@@ -40,7 +40,7 @@
         <a href="#intro">Intro</a>
         <a href="#lcg">LCG</a>
         <a href="#mrg">MRG</a>
-        <a href="./simulation.html">Try it</a>
+        <a href="#verify">Verify</a>
       </nav>
     </header>
     <main>
@@ -211,22 +211,62 @@
         </p>
       </section>
 
-      <section id="what-next" aria-labelledby="what-next-heading">
-        <h2 id="what-next-heading">What this buys you for Monte Carlo</h2>
+      <section id="verify" aria-labelledby="verify-heading">
+        <h2 id="verify-heading">How do we verify randomness?</h2>
         <p>
-          For Monte Carlo work, the statistics that matter most are simple ones: does the output
-          stream have mean <code>≈ 0.5</code> and variance <code>≈ 1/12</code>, the values a true
-          <code>U(0,1)</code> sequence would have — and, just as important, are consecutive
-          outputs uncorrelated with each other? A generator can pass the first test and still fail
-          the second, which is exactly the kind of structure a bad choice of <code>a</code>,
-          <code>c</code>, or <code>m</code> produces.
+          There's a lot of detail in measuring the quality of PRNGs across various axes. In this
+          explainer, we only focus on the most common test for confirming a PRNG is random: the
+          <strong>two-stage empirical test</strong> for randomness.
         </p>
-        <p class="cta">
-          <a href="./simulation.html"
-            >Try it yourself: find values for the generators above that produce these
-            statistics, then click the example button to see one answer &rarr;</a
-          >
+        <p>
+          In some cases, advanced statistical analysis can tell us exactly how a PRNG will behave.
+          But that isn't possible in general. So instead, <strong>empirical</strong> (meaning based
+          on observation) statistical measures confirm or deny that a generator's output is
+          statistically indistinguishable from true random numbers.
         </p>
+        <p>
+          This test, as the name implies, has two stages. First, it checks whether the numbers a
+          single run produces are evenly spread out, with no bias toward any particular range.
+          Second, it checks whether that result holds up consistently — not just a fluke of the
+          one seed we happened to test.
+        </p>
+        <p>
+          The mechanics of the test itself aren't hugely important, and there are many tests that
+          produce similar outcomes. Just know this first test checks whether the outputs are
+          random by looking at the distribution of values. If the output is truly random, there's
+          no bias in any direction — every value is equally likely, with no lean toward higher or
+          lower numbers.
+        </p>
+        <p>
+          However, one output stream can be unreliable on its own. Outliers exist, and it's
+          possible to just be unlucky with the chosen seed. A generator's quality isn't about one
+          seed — it's the accumulation of behaviour across many possible seeds.
+        </p>
+        <p>
+          So the second stage rules out the possibility of a bad seed, or bad luck, by checking
+          many seeds at once. It takes many results from the first test — each run independently
+          with a different seed — and applies a second, similar test to those results. In other
+          words, it checks whether the output is consistently random across many seeds, not just
+          this one.
+        </p>
+
+        <p>
+          Try it yourself: this first widget runs the stage-1 test live on the LCG from earlier —
+          pick values, set a rate, and watch the scatter fill in and the <code>χ²</code> statistic
+          settle as more samples arrive.
+        </p>
+        <div id="verify-lcg-1" class="widget" data-widget-root></div>
+
+        <p>
+          And here's stage 2: pick a handful of seeds and a sample size, and this widget runs the
+          stage-1 test independently for each seed, then plots every resulting statistic against
+          the value it should average out to if the generator really is unbiased.
+        </p>
+        <div id="verify-lcg-2" class="widget" data-widget-root></div>
+
+        <p>The same two stages, for the MRG:</p>
+        <div id="verify-mrg-1" class="widget" data-widget-root></div>
+        <div id="verify-mrg-2" class="widget" data-widget-root></div>
       </section>
     </main>
     <script type="module" src="./main.js"></script>
