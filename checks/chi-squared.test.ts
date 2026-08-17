@@ -19,9 +19,22 @@ describe("createChiSquaredTracker", () => {
     expect(tracker.statistic()).toBe(12);
   });
 
-  it("clamps a value of exactly the top edge into the last bin", () => {
+  it("clamps a value just under the top edge into the last bin", () => {
     const tracker = createChiSquaredTracker(4);
     tracker.add(0.999999999);
+    expect(tracker.counts()).toEqual([0, 0, 0, 1]);
+  });
+
+  it("clamps a value of exactly 1 into the last bin", () => {
+    // floor(1 * 4) = 4, which is out of range for 4 bins (valid indices
+    // 0-3) — this is the case the min(..., binCount - 1) clamp exists
+    // for. Values feeding this tracker are always Number(X_t)/Number(m)
+    // with X_t < m, so this shouldn't arise in practice, but a BigInt
+    // large enough to lose precision in the Number() conversion could
+    // round X_t and m to the same double and produce exactly 1 — worth
+    // covering explicitly rather than only the near-1 case above.
+    const tracker = createChiSquaredTracker(4);
+    tracker.add(1);
     expect(tracker.counts()).toEqual([0, 0, 0, 1]);
   });
 
