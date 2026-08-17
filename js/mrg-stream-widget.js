@@ -2,6 +2,7 @@ import { el } from "./dom.js";
 import { buildField, buildRateField } from "./field.js";
 import { mountTermList } from "./term-list.js";
 import { parseBigIntField, validateParams, stepGenerator } from "./recurrence.js";
+import { typesetMath } from "./mathjax.js";
 
 const MAX_CONSOLE_LINES = 200;
 const TARGET_EXTRA_STEPS = 6;
@@ -36,6 +37,7 @@ export function mountMrgStreamWidget(container, defaults) {
 
   container.replaceChildren();
   container.append(paramsEl, termListEl, consoleEl, controls);
+  typesetMath([paramsEl]);
 
   let timer = null;
   let running = true;

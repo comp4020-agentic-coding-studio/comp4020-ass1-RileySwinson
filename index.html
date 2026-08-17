@@ -269,6 +269,34 @@
         <p>The same two stages, for the MRG:</p>
         <div id="verify-mrg-1" class="widget" data-widget-root></div>
         <div id="verify-mrg-2" class="widget" data-widget-root></div>
+
+        <h3 id="period-importance-heading">The importance of large periods</h3>
+        <p>
+          Try this: in the MRG stage-2 widget above, using its own default values
+          (<code>m = 1000</code>, <code>a_1 = 7</code>, <code>a_2 = 5</code>, <code>a_3 = 3</code>,
+          seeds <code>1, 10, 20, 30, 40, 50, 60, 70</code>), raise "Samples per seed" from
+          <code>500</code> to <code>20,000</code> and click Run again. Watch the mean rocket up, far
+          past the <code>9</code> it should hover around.
+        </p>
+        <p>
+          That's not the test breaking — it's the test correctly catching a real flaw. Every one of
+          those 8 default seeds sits on a cycle of exactly <code>12,400</code> steps: after
+          <code>12,400</code> outputs, this particular MRG returns to a state it has already visited
+          and repeats itself exactly, forever — the same thing that happened to the period-4 LCG
+          example earlier on this page, just with a longer cycle. Ask for fewer samples than that and
+          each run looks genuinely uniform. Ask for more than the period, and the run has nowhere new
+          left to go: the same handful of values gets counted over and over, piling into the same
+          bins, and <code>χ²</code> reports that, correctly, as wildly non-uniform.
+        </p>
+        <p>
+          This is exactly why the period sections earlier on this page made such a fuss about it. A
+          generator that looks statistically excellent across its first <code>12,400</code> numbers
+          can be statistically catastrophic on the very next one — and a real simulation that consumes
+          billions of random numbers would hit that wall almost immediately. Raise the sample size far
+          enough, and the two-stage test will eventually expose the period of any generator whose
+          period is shorter than what you asked of it. This MRG's constants were kept small and simple
+          on purpose, precisely so there's a short-period example to break here.
+        </p>
       </section>
     </main>
     <script type="module" src="./main.js"></script>

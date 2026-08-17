@@ -1,6 +1,7 @@
 import { el } from "./dom.js";
 import { buildField, buildRateField } from "./field.js";
 import { parseBigIntField, validateParams, mod } from "./recurrence.js";
+import { typesetMath } from "./mathjax.js";
 
 const MAX_CONSOLE_LINES = 200;
 const TARGET_EXTRA_STEPS = 6;
@@ -51,6 +52,7 @@ export function mountLcgStreamWidget(container, defaults) {
 
   container.replaceChildren();
   container.append(paramsEl, consoleEl, controls);
+  typesetMath([paramsEl]);
 
   let timer = null;
   let running = true;
