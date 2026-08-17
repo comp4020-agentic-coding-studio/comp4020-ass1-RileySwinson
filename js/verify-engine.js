@@ -6,8 +6,20 @@ import { typesetMath } from "./mathjax.js";
 const BIN_COUNT = 10;
 const MAX_VISIBLE_POINTS = 150;
 const MAX_TOTAL_SAMPLES = 20000; // safety cap — this runs on a timer indefinitely otherwise
+
+// PLOT_W/PLOT_H are the plotted-data area; the margins reserve dedicated
+// space *outside* that area for axis tick numbers, so they never sit on
+// top of gridlines/points the way they did when ticks were drawn inside
+// the plot's own bounds.
 const PLOT_W = 300;
 const PLOT_H = 150;
+const MARGIN_LEFT = 32;
+const MARGIN_TOP = 6;
+const MARGIN_RIGHT = 6;
+const MARGIN_BOTTOM = 14;
+const VIEWBOX_W = MARGIN_LEFT + PLOT_W + MARGIN_RIGHT;
+const VIEWBOX_H = MARGIN_TOP + PLOT_H + MARGIN_BOTTOM;
+
 const Y_TICKS = [0, 0.25, 0.5, 0.75, 1]; // U_t's domain is fixed, unlike stage-2's chi-squared axis
 
 /**
@@ -25,20 +37,28 @@ const Y_TICKS = [0, 0.25, 0.5, 0.75, 1]; // U_t's domain is fixed, unlike stage-
 export function mountVerifyEngine(container, { idPrefix, defaultRate = 5, computeGenerator }) {
   const rateField = buildRateField(`${idPrefix}-rate`, defaultRate);
 
-  const svg = svgEl("svg", { viewBox: `0 0 ${PLOT_W} ${PLOT_H}`, preserveAspectRatio: "none", class: "verify-svg" });
+  const svg = svgEl("svg", { viewBox: `0 0 ${VIEWBOX_W} ${VIEWBOX_H}`, preserveAspectRatio: "none", class: "verify-svg" });
   const yTicksGroup = svgEl(
     "g",
     { class: "verify-axis-ticks" },
     Y_TICKS.flatMap((v) => {
-      const y = (1 - v) * PLOT_H;
+      const y = MARGIN_TOP + (1 - v) * PLOT_H;
       return [
-        svgEl("line", { class: "verify-gridline", x1: 0, y1: y.toFixed(2), x2: PLOT_W, y2: y.toFixed(2) }),
-        svgEl("text", { class: "verify-tick-label", x: 3, y: Math.max(7, y - 2).toFixed(2) }, [String(v)]),
+        svgEl("line", { class: "verify-gridline", x1: MARGIN_LEFT, y1: y.toFixed(2), x2: MARGIN_LEFT + PLOT_W, y2: y.toFixed(2) }),
+        svgEl(
+          "text",
+          { class: "verify-tick-label", x: MARGIN_LEFT - 4, y: y.toFixed(2), "text-anchor": "end", "dominant-baseline": "middle" },
+          [String(v)],
+        ),
       ];
     }),
   );
   const xTicksGroup = svgEl("g", { class: "verify-axis-ticks" });
-  svg.append(yTicksGroup, xTicksGroup, svgEl("rect", { class: "verify-svg-border", x: 0.5, y: 0.5, width: PLOT_W - 1, height: PLOT_H - 1 }));
+  svg.append(
+    yTicksGroup,
+    xTicksGroup,
+    svgEl("rect", { class: "verify-svg-border", x: MARGIN_LEFT + 0.5, y: MARGIN_TOP + 0.5, width: PLOT_W - 1, height: PLOT_H - 1 }),
+  );
   const pointsGroup = svgEl("g", { class: "verify-points" });
   svg.append(pointsGroup);
   const plotEl = axisPlot(svg, {
@@ -73,8 +93,8 @@ export function mountVerifyEngine(container, { idPrefix, defaultRate = 5, comput
   function render() {
     pointsGroup.replaceChildren(
       ...state.points.map((value, i) => {
-        const x = state.points.length === 1 ? PLOT_W / 2 : (i / (MAX_VISIBLE_POINTS - 1)) * PLOT_W;
-        const y = (1 - value) * PLOT_H;
+        const x = MARGIN_LEFT + (state.points.length === 1 ? PLOT_W / 2 : (i / (MAX_VISIBLE_POINTS - 1)) * PLOT_W);
+        const y = MARGIN_TOP + (1 - value) * PLOT_H;
         return svgEl("circle", { cx: x.toFixed(2), cy: y.toFixed(2), r: 2 });
       }),
     );
@@ -83,9 +103,14 @@ export function mountVerifyEngine(container, { idPrefix, defaultRate = 5, comput
     // labelling its real start/end sample index, not just "left"/"right",
     // so the x-axis carries actual numbers that move as more samples arrive.
     const oldestIndex = Math.max(1, n - state.points.length + 1);
+    const tickY = MARGIN_TOP + PLOT_H + 10;
     xTicksGroup.replaceChildren(
-      svgEl("text", { class: "verify-tick-label", x: 3, y: PLOT_H - 3, "text-anchor": "start" }, [String(oldestIndex)]),
-      svgEl("text", { class: "verify-tick-label", x: PLOT_W - 3, y: PLOT_H - 3, "text-anchor": "end" }, [String(n)]),
+      svgEl("text", { class: "verify-tick-label", x: MARGIN_LEFT, y: tickY.toFixed(2), "text-anchor": "start" }, [String(oldestIndex)]),
+      svgEl(
+        "text",
+        { class: "verify-tick-label", x: (MARGIN_LEFT + PLOT_W).toFixed(2), y: tickY.toFixed(2), "text-anchor": "end" },
+        [String(n)],
+      ),
     );
     const mean = n === 0 ? 0 : state.sum / n;
     nStat.textContent = `n = ${n.toLocaleString("en-AU")}`;

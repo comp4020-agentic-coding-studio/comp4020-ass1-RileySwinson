@@ -178,7 +178,7 @@ thead th {
   cursor: pointer;
   font-weight: 700;
   font-size: 1.15rem;
-  color: var(--danger);
+  color: var(--var-m);
   list-style: none;
 }
 

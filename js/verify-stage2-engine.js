@@ -5,8 +5,20 @@ import { typesetMath } from "./mathjax.js";
 const BIN_COUNT = 10;
 const DEGREES_OF_FREEDOM = BIN_COUNT - 1;
 const MAX_SEEDS = 50;
+
+// PLOT_W/PLOT_H are the plotted-data area; the margins reserve dedicated
+// space *outside* that area for axis tick numbers, so they never sit on
+// top of gridlines/points the way they did when ticks were drawn inside
+// the plot's own bounds.
 const PLOT_W = 300;
 const PLOT_H = 150;
+const MARGIN_LEFT = 32;
+const MARGIN_TOP = 6;
+const MARGIN_RIGHT = 6;
+const MARGIN_BOTTOM = 14;
+const VIEWBOX_W = MARGIN_LEFT + PLOT_W + MARGIN_RIGHT;
+const VIEWBOX_H = MARGIN_TOP + PLOT_H + MARGIN_BOTTOM;
+
 const PADDING = 10;
 const MAX_X_LABELS = 8; // thin seed labels past this many points, or they'd overlap
 
@@ -96,14 +108,14 @@ export function mountVerifyStage2Engine(
   const runButton = el("button", { className: "run-button", attrs: { type: "button" }, text: "Run" });
   const summaryEl = el("p", { className: "console-status", attrs: { "aria-live": "polite" } });
 
-  const svg = svgEl("svg", { viewBox: `0 0 ${PLOT_W} ${PLOT_H}`, preserveAspectRatio: "none", class: "verify-svg" });
+  const svg = svgEl("svg", { viewBox: `0 0 ${VIEWBOX_W} ${VIEWBOX_H}`, preserveAspectRatio: "none", class: "verify-svg" });
   const referenceLine = svgEl("line", { class: "verify-reference" });
   const pointsGroup = svgEl("g", { class: "verify-points" });
   const yTicksGroup = svgEl("g", { class: "verify-axis-ticks" });
   const xTicksGroup = svgEl("g", { class: "verify-axis-ticks" });
   svg.append(
     yTicksGroup,
-    svgEl("rect", { class: "verify-svg-border", x: 0.5, y: 0.5, width: PLOT_W - 1, height: PLOT_H - 1 }),
+    svgEl("rect", { class: "verify-svg-border", x: MARGIN_LEFT + 0.5, y: MARGIN_TOP + 0.5, width: PLOT_W - 1, height: PLOT_H - 1 }),
     referenceLine,
     pointsGroup,
     xTicksGroup,
@@ -134,25 +146,29 @@ export function mountVerifyStage2Engine(
   }
 
   function xFor(i, count) {
-    return count === 1 ? PLOT_W / 2 : PADDING + (i / (count - 1)) * (PLOT_W - 2 * PADDING);
+    return MARGIN_LEFT + (count === 1 ? PLOT_W / 2 : PADDING + (i / (count - 1)) * (PLOT_W - 2 * PADDING));
   }
 
   function renderResults(statistics, seeds) {
     const yMax = Math.max(DEGREES_OF_FREEDOM * 2, ...statistics) * 1.15;
-    const yFor = (value) => PLOT_H - (value / yMax) * PLOT_H;
+    const yFor = (value) => MARGIN_TOP + PLOT_H - (value / yMax) * PLOT_H;
 
     yTicksGroup.replaceChildren(
       ...niceTicks(yMax, 4).flatMap((v) => {
         const y = yFor(v);
         return [
-          svgEl("line", { class: "verify-gridline", x1: 0, y1: y.toFixed(2), x2: PLOT_W, y2: y.toFixed(2) }),
-          svgEl("text", { class: "verify-tick-label", x: 3, y: Math.max(7, y - 2).toFixed(2) }, [String(v)]),
+          svgEl("line", { class: "verify-gridline", x1: MARGIN_LEFT, y1: y.toFixed(2), x2: MARGIN_LEFT + PLOT_W, y2: y.toFixed(2) }),
+          svgEl(
+            "text",
+            { class: "verify-tick-label", x: MARGIN_LEFT - 4, y: y.toFixed(2), "text-anchor": "end", "dominant-baseline": "middle" },
+            [String(v)],
+          ),
         ];
       }),
     );
 
-    referenceLine.setAttribute("x1", "0");
-    referenceLine.setAttribute("x2", String(PLOT_W));
+    referenceLine.setAttribute("x1", String(MARGIN_LEFT));
+    referenceLine.setAttribute("x2", String(MARGIN_LEFT + PLOT_W));
     referenceLine.setAttribute("y1", yFor(DEGREES_OF_FREEDOM).toFixed(2));
     referenceLine.setAttribute("y2", yFor(DEGREES_OF_FREEDOM).toFixed(2));
 
@@ -163,6 +179,7 @@ export function mountVerifyStage2Engine(
     // Real seed values on the x-axis, not just position — thinned to at
     // most MAX_X_LABELS so a long seed list doesn't overlap into mush.
     const stride = Math.max(1, Math.ceil(seeds.length / MAX_X_LABELS));
+    const tickY = MARGIN_TOP + PLOT_H + 10;
     xTicksGroup.replaceChildren(
       ...seeds
         .map((seedToken, i) => (i % stride === 0 || i === seeds.length - 1 ? { seedToken, i } : null))
@@ -170,7 +187,7 @@ export function mountVerifyStage2Engine(
         .map(({ seedToken, i }) =>
           svgEl(
             "text",
-            { class: "verify-tick-label", x: xFor(i, seeds.length).toFixed(2), y: PLOT_H - 3, "text-anchor": "middle" },
+            { class: "verify-tick-label", x: xFor(i, seeds.length).toFixed(2), y: tickY.toFixed(2), "text-anchor": "middle" },
             [seedToken],
           ),
         ),
