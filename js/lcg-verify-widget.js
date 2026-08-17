@@ -3,6 +3,7 @@ import { buildField } from "./field.js";
 import { parseBigIntField, validateParams, mod } from "./recurrence.js";
 import { mountVerifyEngine } from "./verify-engine.js";
 import { typesetMath } from "./mathjax.js";
+import { mountWidgetShell } from "./widget-shell.js";
 
 /**
  * Widget A1: the stage-1 equidistribution test, live, for an LCG. Editable
@@ -22,8 +23,8 @@ export function mountLcgVerifyWidget(container, defaults) {
   const paramsEl = el("div", { className: "params" }, fieldList.map((f) => f.wrapper));
   const engineEl = el("div", { className: "widget-computation" });
 
-  container.replaceChildren();
-  container.append(paramsEl, engineEl);
+  const bodyEl = mountWidgetShell(container, { title: "LCG — stage 1: equidistribution", color: "var(--var-c)" });
+  bodyEl.append(paramsEl, engineEl);
   typesetMath([paramsEl]);
 
   function clearErrors() {

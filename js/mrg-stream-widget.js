@@ -3,6 +3,7 @@ import { buildField, buildRateField } from "./field.js";
 import { mountTermList } from "./term-list.js";
 import { parseBigIntField, validateParams, stepGenerator } from "./recurrence.js";
 import { typesetMath } from "./mathjax.js";
+import { mountWidgetShell } from "./widget-shell.js";
 
 const MAX_CONSOLE_LINES = 200;
 const TARGET_EXTRA_STEPS = 6;
@@ -35,8 +36,8 @@ export function mountMrgStreamWidget(container, defaults) {
   const pauseButton = el("button", { className: "carousel-next", attrs: { type: "button" }, text: "Pause" });
   const controls = el("div", { className: "carousel-controls" }, [restartButton, statusEl, pauseButton]);
 
-  container.replaceChildren();
-  container.append(paramsEl, termListEl, consoleEl, controls);
+  const bodyEl = mountWidgetShell(container, { title: "MRG — live stream", color: "var(--var-seed)" });
+  bodyEl.append(paramsEl, termListEl, consoleEl, controls);
   typesetMath([paramsEl]);
 
   let timer = null;

@@ -4,6 +4,7 @@ import { mountTermList } from "./term-list.js";
 import { parseBigIntField, validateParams, runSequence } from "./recurrence.js";
 import { mountDotCarousel } from "./dot-carousel.js";
 import { typesetMath } from "./mathjax.js";
+import { mountWidgetShell } from "./widget-shell.js";
 
 function fmt(value) {
   return value.toLocaleString("en-AU");
@@ -178,8 +179,8 @@ export function mountMrgWidget(container, defaults) {
   const termListEl = el("div", { className: "mrg-terms" });
   const carouselEl = el("div", { className: "widget-computation" });
 
-  container.replaceChildren();
-  container.append(paramsEl, termListEl, carouselEl);
+  const bodyEl = mountWidgetShell(container, { title: "MRG walkthrough", color: "var(--var-m)" });
+  bodyEl.append(paramsEl, termListEl, carouselEl);
   typesetMath([paramsEl]);
 
   let carouselHandle = null;

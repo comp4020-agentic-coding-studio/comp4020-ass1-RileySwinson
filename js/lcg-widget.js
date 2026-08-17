@@ -3,6 +3,7 @@ import { buildField } from "./field.js";
 import { parseBigIntField, validateParams, mod } from "./recurrence.js";
 import { mountDotCarousel } from "./dot-carousel.js";
 import { typesetMath } from "./mathjax.js";
+import { mountWidgetShell } from "./widget-shell.js";
 
 function fmt(value) {
   return value.toLocaleString("en-AU");
@@ -296,8 +297,8 @@ export function mountLcgWidget(container, defaults) {
     allStepsBody,
   ]);
 
-  container.replaceChildren();
-  container.append(paramsEl, carouselEl, allStepsEl);
+  const bodyEl = mountWidgetShell(container, { title: "LCG walkthrough", color: "var(--accent)" });
+  bodyEl.append(paramsEl, carouselEl, allStepsEl);
   typesetMath([paramsEl]);
 
   function readParams() {

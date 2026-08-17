@@ -4,6 +4,7 @@ import { mountTermList } from "./term-list.js";
 import { parseBigIntField, validateParams, stepGenerator } from "./recurrence.js";
 import { mountVerifyEngine } from "./verify-engine.js";
 import { typesetMath } from "./mathjax.js";
+import { mountWidgetShell } from "./widget-shell.js";
 
 /**
  * Widget B1: the stage-1 equidistribution test, live, for an MRG — same
@@ -19,8 +20,8 @@ export function mountMrgVerifyWidget(container, defaults) {
   const termListEl = el("div", { className: "mrg-terms" });
   const engineEl = el("div", { className: "widget-computation" });
 
-  container.replaceChildren();
-  container.append(paramsEl, termListEl, engineEl);
+  const bodyEl = mountWidgetShell(container, { title: "MRG — stage 1: equidistribution", color: "var(--var-pink)" });
+  bodyEl.append(paramsEl, termListEl, engineEl);
   typesetMath([paramsEl]);
 
   function clearErrors() {

@@ -2,6 +2,7 @@ import { el } from "./dom.js";
 import { buildField, buildRateField } from "./field.js";
 import { parseBigIntField, validateParams, mod } from "./recurrence.js";
 import { typesetMath } from "./mathjax.js";
+import { mountWidgetShell } from "./widget-shell.js";
 
 const MAX_CONSOLE_LINES = 200;
 const TARGET_EXTRA_STEPS = 6;
@@ -50,8 +51,8 @@ export function mountLcgStreamWidget(container, defaults) {
   });
   const controls = el("div", { className: "carousel-controls" }, [restartButton, statusEl, pauseButton]);
 
-  container.replaceChildren();
-  container.append(paramsEl, consoleEl, controls);
+  const bodyEl = mountWidgetShell(container, { title: "LCG — live stream", color: "var(--var-a)" });
+  bodyEl.append(paramsEl, consoleEl, controls);
   typesetMath([paramsEl]);
 
   let timer = null;

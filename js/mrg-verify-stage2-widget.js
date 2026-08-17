@@ -4,6 +4,7 @@ import { mountMultiplierList } from "./multiplier-list.js";
 import { parseBigIntField, validateParams, stepGenerator } from "./recurrence.js";
 import { mountVerifyStage2Engine } from "./verify-stage2-engine.js";
 import { typesetMath } from "./mathjax.js";
+import { mountWidgetShell } from "./widget-shell.js";
 
 /**
  * Widget B2: the stage-2 test for an MRG. m and the a_i multipliers are
@@ -20,8 +21,8 @@ export function mountMrgVerifyStage2Widget(container, defaults) {
   const multiplierListEl = el("div", { className: "mrg-terms" });
   const engineEl = el("div", { className: "widget-computation" });
 
-  container.replaceChildren();
-  container.append(paramsEl, multiplierListEl, engineEl);
+  const bodyEl = mountWidgetShell(container, { title: "MRG — stage 2: many seeds", color: "var(--danger)" });
+  bodyEl.append(paramsEl, multiplierListEl, engineEl);
   typesetMath([paramsEl]);
 
   function generateSample(seedToken, sampleSize) {

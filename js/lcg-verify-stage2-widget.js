@@ -3,6 +3,7 @@ import { buildField } from "./field.js";
 import { parseBigIntField, validateParams, mod } from "./recurrence.js";
 import { mountVerifyStage2Engine } from "./verify-stage2-engine.js";
 import { typesetMath } from "./mathjax.js";
+import { mountWidgetShell } from "./widget-shell.js";
 
 /**
  * Widget A2: the stage-2 test for an LCG — a and c and m are shared across
@@ -20,8 +21,8 @@ export function mountLcgVerifyStage2Widget(container, defaults) {
   const paramsEl = el("div", { className: "params" }, fieldList.map((f) => f.wrapper));
   const engineEl = el("div", { className: "widget-computation" });
 
-  container.replaceChildren();
-  container.append(paramsEl, engineEl);
+  const bodyEl = mountWidgetShell(container, { title: "LCG — stage 2: many seeds", color: "var(--var-result)" });
+  bodyEl.append(paramsEl, engineEl);
   typesetMath([paramsEl]);
 
   function generateSample(seedToken, sampleSize) {
