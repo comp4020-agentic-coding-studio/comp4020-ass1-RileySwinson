@@ -127,12 +127,9 @@ code {
 }
 
 .equation {
-  font-family: var(--font-mono);
-  font-size: 1.05rem;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  padding: 1rem 1.25rem;
+  font-size: 1.1rem;
+  text-align: center;
+  margin: 1.25rem 0;
   overflow-x: auto;
 }
 
