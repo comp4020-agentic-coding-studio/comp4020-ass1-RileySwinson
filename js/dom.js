@@ -28,3 +28,20 @@ export function svgEl(tag, attrs = {}, children = []) {
   if (children.length) node.append(...children);
   return node;
 }
+
+/**
+ * Wraps a plot `<svg>` with an x-axis label below it and a y-axis label
+ * beside it — shared by js/verify-engine.js and js/verify-stage2-engine.js
+ * so both scatter plots say what their axes actually mean instead of
+ * leaving the reader to guess from the surrounding prose.
+ */
+export function axisPlot(svg, { xLabel, yLabel }) {
+  const body = el("div", { className: "verify-plot-body" }, [
+    el("span", { className: "verify-axis-label verify-axis-y", text: yLabel }),
+    svg,
+  ]);
+  return el("div", { className: "verify-plot" }, [
+    body,
+    el("span", { className: "verify-axis-label verify-axis-x", text: xLabel }),
+  ]);
+}

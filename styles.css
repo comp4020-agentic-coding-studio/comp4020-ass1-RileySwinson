@@ -549,8 +549,33 @@ thead th {
   margin: 1rem 0;
 }
 
+.verify-plot-body {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verify-axis-label {
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.verify-axis-y {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.verify-axis-x {
+  display: block;
+  text-align: center;
+  margin-top: 0.4rem;
+}
+
 .verify-svg {
-  width: 100%;
+  flex: 1 1 0%;
+  min-width: 0;
   height: auto;
   aspect-ratio: 2 / 1;
   display: block;

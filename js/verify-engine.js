@@ -1,4 +1,4 @@
-import { el, svgEl } from "./dom.js";
+import { el, svgEl, axisPlot } from "./dom.js";
 import { buildRateField } from "./field.js";
 import { createChiSquaredTracker } from "./chi-squared.js";
 
@@ -30,7 +30,7 @@ export function mountVerifyEngine(container, { idPrefix, defaultRate = 5, comput
   );
   const pointsGroup = svgEl("g", { class: "verify-points" });
   svg.append(pointsGroup);
-  const plotEl = el("div", { className: "verify-plot" }, [svg]);
+  const plotEl = axisPlot(svg, { xLabel: "sample order (most recent, left to right) →", yLabel: "U_t value" });
 
   const nStat = el("p", { className: "verify-stat" });
   const meanStat = el("p", { className: "verify-stat" });

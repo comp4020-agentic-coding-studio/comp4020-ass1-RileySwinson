@@ -1,4 +1,4 @@
-import { el, svgEl } from "./dom.js";
+import { el, svgEl, axisPlot } from "./dom.js";
 import { createChiSquaredTracker } from "./chi-squared.js";
 
 const BIN_COUNT = 10;
@@ -90,7 +90,7 @@ export function mountVerifyStage2Engine(
     referenceLine,
     pointsGroup,
   );
-  const plotEl = el("div", { className: "verify-plot" }, [svg]);
+  const plotEl = axisPlot(svg, { xLabel: "seed (in the order entered) →", yLabel: "χ² statistic" });
 
   container.replaceChildren(paramsEl, el("div", { className: "verify-run" }, [runButton, summaryEl]), plotEl);
 
