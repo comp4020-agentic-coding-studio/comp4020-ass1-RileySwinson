@@ -51,7 +51,7 @@ export function mountLcgStreamWidget(container, defaults) {
   });
   const controls = el("div", { className: "carousel-controls" }, [restartButton, statusEl, pauseButton]);
 
-  const bodyEl = mountWidgetShell(container, { title: "LCG — live stream", color: "var(--var-a)" });
+  const bodyEl = mountWidgetShell(container, { title: "LCG live stream" });
   bodyEl.append(paramsEl, consoleEl, controls);
   typesetMath([paramsEl]);
 

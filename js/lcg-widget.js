@@ -297,7 +297,7 @@ export function mountLcgWidget(container, defaults) {
     allStepsBody,
   ]);
 
-  const bodyEl = mountWidgetShell(container, { title: "LCG walkthrough", color: "var(--accent)" });
+  const bodyEl = mountWidgetShell(container, { title: "LCG walkthrough" });
   bodyEl.append(paramsEl, carouselEl, allStepsEl);
   typesetMath([paramsEl]);
 

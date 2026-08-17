@@ -8,6 +8,7 @@ const MAX_VISIBLE_POINTS = 150;
 const MAX_TOTAL_SAMPLES = 20000; // safety cap — this runs on a timer indefinitely otherwise
 const PLOT_W = 300;
 const PLOT_H = 150;
+const Y_TICKS = [0, 0.25, 0.5, 0.75, 1]; // U_t's domain is fixed, unlike stage-2's chi-squared axis
 
 /**
  * Shared stage-1 verify UI: a rate slider, a live scatter of the last
@@ -25,10 +26,19 @@ export function mountVerifyEngine(container, { idPrefix, defaultRate = 5, comput
   const rateField = buildRateField(`${idPrefix}-rate`, defaultRate);
 
   const svg = svgEl("svg", { viewBox: `0 0 ${PLOT_W} ${PLOT_H}`, preserveAspectRatio: "none", class: "verify-svg" });
-  svg.append(
-    svgEl("line", { class: "verify-midline", x1: 0, y1: PLOT_H / 2, x2: PLOT_W, y2: PLOT_H / 2 }),
-    svgEl("rect", { class: "verify-svg-border", x: 0.5, y: 0.5, width: PLOT_W - 1, height: PLOT_H - 1 }),
+  const yTicksGroup = svgEl(
+    "g",
+    { class: "verify-axis-ticks" },
+    Y_TICKS.flatMap((v) => {
+      const y = (1 - v) * PLOT_H;
+      return [
+        svgEl("line", { class: "verify-gridline", x1: 0, y1: y.toFixed(2), x2: PLOT_W, y2: y.toFixed(2) }),
+        svgEl("text", { class: "verify-tick-label", x: 3, y: Math.max(7, y - 2).toFixed(2) }, [String(v)]),
+      ];
+    }),
   );
+  const xTicksGroup = svgEl("g", { class: "verify-axis-ticks" });
+  svg.append(yTicksGroup, xTicksGroup, svgEl("rect", { class: "verify-svg-border", x: 0.5, y: 0.5, width: PLOT_W - 1, height: PLOT_H - 1 }));
   const pointsGroup = svgEl("g", { class: "verify-points" });
   svg.append(pointsGroup);
   const plotEl = axisPlot(svg, {
@@ -69,6 +79,14 @@ export function mountVerifyEngine(container, { idPrefix, defaultRate = 5, comput
       }),
     );
     const n = state.tracker.n;
+    // The visible window shows the most recent state.points.length samples —
+    // labelling its real start/end sample index, not just "left"/"right",
+    // so the x-axis carries actual numbers that move as more samples arrive.
+    const oldestIndex = Math.max(1, n - state.points.length + 1);
+    xTicksGroup.replaceChildren(
+      svgEl("text", { class: "verify-tick-label", x: 3, y: PLOT_H - 3, "text-anchor": "start" }, [String(oldestIndex)]),
+      svgEl("text", { class: "verify-tick-label", x: PLOT_W - 3, y: PLOT_H - 3, "text-anchor": "end" }, [String(n)]),
+    );
     const mean = n === 0 ? 0 : state.sum / n;
     nStat.textContent = `n = ${n.toLocaleString("en-AU")}`;
     meanStat.textContent = `mean ≈ ${mean.toFixed(4)} (expect ≈ 0.5)`;
@@ -104,6 +122,7 @@ export function mountVerifyEngine(container, { idPrefix, defaultRate = 5, comput
     if (!stepOrNull) {
       state = null;
       pointsGroup.replaceChildren();
+      xTicksGroup.replaceChildren();
       nStat.textContent = "";
       meanStat.textContent = "";
       chiStat.textContent = "";

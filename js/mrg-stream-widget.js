@@ -36,7 +36,7 @@ export function mountMrgStreamWidget(container, defaults) {
   const pauseButton = el("button", { className: "carousel-next", attrs: { type: "button" }, text: "Pause" });
   const controls = el("div", { className: "carousel-controls" }, [restartButton, statusEl, pauseButton]);
 
-  const bodyEl = mountWidgetShell(container, { title: "MRG — live stream", color: "var(--var-seed)" });
+  const bodyEl = mountWidgetShell(container, { title: "MRG live stream" });
   bodyEl.append(paramsEl, termListEl, consoleEl, controls);
   typesetMath([paramsEl]);
 

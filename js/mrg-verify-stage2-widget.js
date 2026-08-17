@@ -21,7 +21,7 @@ export function mountMrgVerifyStage2Widget(container, defaults) {
   const multiplierListEl = el("div", { className: "mrg-terms" });
   const engineEl = el("div", { className: "widget-computation" });
 
-  const bodyEl = mountWidgetShell(container, { title: "MRG — stage 2: many seeds", color: "var(--danger)" });
+  const bodyEl = mountWidgetShell(container, { title: "MRG stage 2: many seeds" });
   bodyEl.append(paramsEl, multiplierListEl, engineEl);
   typesetMath([paramsEl]);
 

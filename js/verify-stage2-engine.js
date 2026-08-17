@@ -8,6 +8,7 @@ const MAX_SEEDS = 50;
 const PLOT_W = 300;
 const PLOT_H = 150;
 const PADDING = 10;
+const MAX_X_LABELS = 8; // thin seed labels past this many points, or they'd overlap
 
 function parseSeedList(raw) {
   return raw
@@ -19,6 +20,18 @@ function parseSeedList(raw) {
 function parseSampleSize(raw) {
   const n = Number(raw);
   return Number.isInteger(n) && n > 0 ? n : null;
+}
+
+/** "Nice" round tick values from 0 to max — the χ² axis range depends on the data, unlike stage-1's fixed [0,1). */
+function niceTicks(max, targetCount) {
+  if (max <= 0) return [0];
+  const rawStep = max / targetCount;
+  const magnitude = 10 ** Math.floor(Math.log10(rawStep));
+  const normalized = rawStep / magnitude;
+  const step = (normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10) * magnitude;
+  const ticks = [];
+  for (let v = 0; v <= max; v += step) ticks.push(Math.round(v / step) * step);
+  return ticks;
 }
 
 /**
@@ -86,10 +99,14 @@ export function mountVerifyStage2Engine(
   const svg = svgEl("svg", { viewBox: `0 0 ${PLOT_W} ${PLOT_H}`, preserveAspectRatio: "none", class: "verify-svg" });
   const referenceLine = svgEl("line", { class: "verify-reference" });
   const pointsGroup = svgEl("g", { class: "verify-points" });
+  const yTicksGroup = svgEl("g", { class: "verify-axis-ticks" });
+  const xTicksGroup = svgEl("g", { class: "verify-axis-ticks" });
   svg.append(
+    yTicksGroup,
     svgEl("rect", { class: "verify-svg-border", x: 0.5, y: 0.5, width: PLOT_W - 1, height: PLOT_H - 1 }),
     referenceLine,
     pointsGroup,
+    xTicksGroup,
   );
   const plotEl = axisPlot(svg, {
     xLabel: "seeds, left to right, in order entered",
@@ -116,9 +133,23 @@ export function mountVerifyStage2Engine(
     sampleSizeInput.removeAttribute("aria-invalid");
   }
 
-  function renderResults(statistics) {
+  function xFor(i, count) {
+    return count === 1 ? PLOT_W / 2 : PADDING + (i / (count - 1)) * (PLOT_W - 2 * PADDING);
+  }
+
+  function renderResults(statistics, seeds) {
     const yMax = Math.max(DEGREES_OF_FREEDOM * 2, ...statistics) * 1.15;
     const yFor = (value) => PLOT_H - (value / yMax) * PLOT_H;
+
+    yTicksGroup.replaceChildren(
+      ...niceTicks(yMax, 4).flatMap((v) => {
+        const y = yFor(v);
+        return [
+          svgEl("line", { class: "verify-gridline", x1: 0, y1: y.toFixed(2), x2: PLOT_W, y2: y.toFixed(2) }),
+          svgEl("text", { class: "verify-tick-label", x: 3, y: Math.max(7, y - 2).toFixed(2) }, [String(v)]),
+        ];
+      }),
+    );
 
     referenceLine.setAttribute("x1", "0");
     referenceLine.setAttribute("x2", String(PLOT_W));
@@ -126,10 +157,23 @@ export function mountVerifyStage2Engine(
     referenceLine.setAttribute("y2", yFor(DEGREES_OF_FREEDOM).toFixed(2));
 
     pointsGroup.replaceChildren(
-      ...statistics.map((value, i) => {
-        const x = statistics.length === 1 ? PLOT_W / 2 : PADDING + (i / (statistics.length - 1)) * (PLOT_W - 2 * PADDING);
-        return svgEl("circle", { cx: x.toFixed(2), cy: yFor(value).toFixed(2), r: 3 });
-      }),
+      ...statistics.map((value, i) => svgEl("circle", { cx: xFor(i, statistics.length).toFixed(2), cy: yFor(value).toFixed(2), r: 3 })),
+    );
+
+    // Real seed values on the x-axis, not just position — thinned to at
+    // most MAX_X_LABELS so a long seed list doesn't overlap into mush.
+    const stride = Math.max(1, Math.ceil(seeds.length / MAX_X_LABELS));
+    xTicksGroup.replaceChildren(
+      ...seeds
+        .map((seedToken, i) => (i % stride === 0 || i === seeds.length - 1 ? { seedToken, i } : null))
+        .filter(Boolean)
+        .map(({ seedToken, i }) =>
+          svgEl(
+            "text",
+            { class: "verify-tick-label", x: xFor(i, seeds.length).toFixed(2), y: PLOT_H - 3, "text-anchor": "middle" },
+            [seedToken],
+          ),
+        ),
     );
 
     const mean = statistics.reduce((a, b) => a + b, 0) / statistics.length;
@@ -139,6 +183,7 @@ export function mountVerifyStage2Engine(
   function run() {
     clearErrors();
     pointsGroup.replaceChildren();
+    xTicksGroup.replaceChildren();
     referenceLine.removeAttribute("x1");
 
     const seeds = parseSeedList(seedListInput.value).slice(0, MAX_SEEDS);
@@ -171,7 +216,7 @@ export function mountVerifyStage2Engine(
       statistics.push(tracker.statistic());
     }
 
-    renderResults(statistics);
+    renderResults(statistics, seeds);
   }
 
   runButton.addEventListener("click", run);

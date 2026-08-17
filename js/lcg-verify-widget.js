@@ -23,7 +23,7 @@ export function mountLcgVerifyWidget(container, defaults) {
   const paramsEl = el("div", { className: "params" }, fieldList.map((f) => f.wrapper));
   const engineEl = el("div", { className: "widget-computation" });
 
-  const bodyEl = mountWidgetShell(container, { title: "LCG — stage 1: equidistribution", color: "var(--var-c)" });
+  const bodyEl = mountWidgetShell(container, { title: "LCG stage 1: equidistribution" });
   bodyEl.append(paramsEl, engineEl);
   typesetMath([paramsEl]);
 

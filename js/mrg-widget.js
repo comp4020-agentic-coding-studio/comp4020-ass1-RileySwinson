@@ -179,7 +179,7 @@ export function mountMrgWidget(container, defaults) {
   const termListEl = el("div", { className: "mrg-terms" });
   const carouselEl = el("div", { className: "widget-computation" });
 
-  const bodyEl = mountWidgetShell(container, { title: "MRG walkthrough", color: "var(--var-m)" });
+  const bodyEl = mountWidgetShell(container, { title: "MRG walkthrough" });
   bodyEl.append(paramsEl, termListEl, carouselEl);
   typesetMath([paramsEl]);
 

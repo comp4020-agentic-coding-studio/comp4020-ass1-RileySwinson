@@ -35,7 +35,6 @@
   --var-m: #ad3bff;
   --var-seed: #00c8d7;
   --var-result: #ffe900;
-  --var-pink: #ff1ad9; /* Photon Pink 50 — completes the Photon "50" set used for widget titles */
 }
 
 html {
@@ -179,6 +178,7 @@ thead th {
   cursor: pointer;
   font-weight: 700;
   font-size: 1.15rem;
+  color: var(--danger);
   list-style: none;
 }
 
@@ -612,11 +612,6 @@ thead th {
   stroke: var(--border);
 }
 
-.verify-midline {
-  stroke: var(--border);
-  stroke-dasharray: 4 4;
-}
-
 .verify-reference {
   stroke: var(--var-result);
   stroke-width: 1.5;
@@ -626,6 +621,17 @@ thead th {
 .verify-points circle {
   fill: var(--accent);
   fill-opacity: 0.7;
+}
+
+.verify-gridline {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.verify-tick-label {
+  font-family: var(--font-mono);
+  font-size: 7px;
+  fill: var(--text-dim);
 }
 
 .verify-stats {

@@ -20,7 +20,7 @@ export function mountMrgVerifyWidget(container, defaults) {
   const termListEl = el("div", { className: "mrg-terms" });
   const engineEl = el("div", { className: "widget-computation" });
 
-  const bodyEl = mountWidgetShell(container, { title: "MRG — stage 1: equidistribution", color: "var(--var-pink)" });
+  const bodyEl = mountWidgetShell(container, { title: "MRG stage 1: equidistribution" });
   bodyEl.append(paramsEl, termListEl, engineEl);
   typesetMath([paramsEl]);
 

@@ -21,7 +21,7 @@ export function mountLcgVerifyStage2Widget(container, defaults) {
   const paramsEl = el("div", { className: "params" }, fieldList.map((f) => f.wrapper));
   const engineEl = el("div", { className: "widget-computation" });
 
-  const bodyEl = mountWidgetShell(container, { title: "LCG — stage 2: many seeds", color: "var(--var-result)" });
+  const bodyEl = mountWidgetShell(container, { title: "LCG stage 2: many seeds" });
   bodyEl.append(paramsEl, engineEl);
   typesetMath([paramsEl]);
 
