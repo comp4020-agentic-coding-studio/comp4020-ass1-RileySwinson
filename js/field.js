@@ -34,7 +34,7 @@ export function buildField(id, labelText, defaultValue) {
 export function buildRateField(id, defaultRate, labelText = "Numbers per second") {
   const input = el("input", {
     className: "rate-input",
-    attrs: { type: "range", id, min: "1", max: "20", step: "1", value: String(defaultRate) },
+    attrs: { type: "range", id, min: "1", max: "100", step: "1", value: String(defaultRate) },
   });
   const valueEl = el("output", { className: "rate-value", attrs: { for: id }, text: `${defaultRate}/s` });
   const label = el("label", { className: "field-label", attrs: { for: id }, text: labelText });
