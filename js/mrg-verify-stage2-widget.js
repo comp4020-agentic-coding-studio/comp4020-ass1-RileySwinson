@@ -10,9 +10,9 @@ import { typesetMath } from "./mathjax.js";
  * shared across every repetition (js/multiplier-list.js — add/remove to
  * change k); only the seed varies per entry in the seed list. An MRG needs
  * a full k-length window to start from, not a single number, so each seed
- * list entry `s` expands to the window (s, s+1, …, s+k-1) — documented in
- * the field label rather than asking for k seeds per repetition, which
- * would need a much more complex input than a flat list of numbers.
+ * list entry `s` expands to the window (s, s+1, …, s+k-1), rather than
+ * asking for k seeds per repetition, which would need a much more complex
+ * input than a flat list of numbers.
  */
 export function mountMrgVerifyStage2Widget(container, defaults) {
   const mField = buildField("verify2-mrg-m", "\\(m\\)", defaults.m);
@@ -53,7 +53,7 @@ export function mountMrgVerifyStage2Widget(container, defaults) {
     idPrefix: "verify2-mrg",
     defaults: { seeds: defaults.seeds, sampleSize: defaults.sampleSize },
     generateSample,
-    seedLabel: "Starting seeds — each expands to a window (s, s+1, …, s+k−1)",
+    seedLabel: "Starting Seeds",
   });
 
   const multiplierList = mountMultiplierList(multiplierListEl, {
