@@ -119,7 +119,7 @@
           walks through each step of the process.
         </p>
 
-        <div id="lcg-widget" class="widget" data-widget-root></div>
+        <div id="lcg-widget" data-widget-root></div>
 
         <div id="lcg-modulus-details" data-widget-root></div>
 
@@ -138,7 +138,7 @@
           the seed \(X = 1\):
         </p>
 
-        <div id="lcg-stream-widget" class="widget" data-widget-root></div>
+        <div id="lcg-stream-widget" data-widget-root></div>
 
         <p>
           The values repeat themselves after just 4 iterations. This is a problem, because once
@@ -149,12 +149,12 @@
         <p>
           When we run computer simulations, it's important that our numbers stay unpredictable for
           as long as the simulation runs. We can maximise an LCG's period by making
-          <code>m</code> a prime number and <code>a</code> a primitive root modulo <code>m</code> —
-          but even then, the period is at best <code>m − 1</code>, because the nonzero remainders
-          modulo a prime <code>m</code> form a group of exactly that size, and repeated
+          \(m\) a prime number and \(a\) a primitive root modulo \(m\) —
+          but even then, the period is at best \(m - 1\), because the nonzero remainders
+          modulo a prime \(m\) form a group of exactly that size, and repeated
           multiplication can never produce anything outside it. That sounds like a lot — our
-          earlier example already reaches <code>2,147,483,646</code> — but the standard for serious
-          simulation work is a period on the order of <code>10⁵⁰</code>, because a single run can
+          earlier example already reaches \(2{,}147{,}483{,}646\) — but the standard for serious
+          simulation work is a period on the order of \(10^{50}\), because a single run can
           consume billions of random numbers, repeated across many runs, and a period anywhere near
           what a plain LCG offers risks the sequence quietly looping back on itself partway through.
         </p>
@@ -165,20 +165,20 @@
         <h2 id="mrg-heading">The multiple recursive generator</h2>
         <p>
           An LCG generates each number based on the previous one. A <strong>multiple recursive
-          generator</strong> (MRG) generates each number based on the previous <code>k</code>
-          numbers — consequently, it requires <code>k</code> seed values to start. Otherwise, it's
+          generator</strong> (MRG) generates each number based on the previous \(k\)
+          numbers — consequently, it requires \(k\) seed values to start. Otherwise, it's
           quite similar.
         </p>
         <p>
-          An MRG first picks some number <code>k</code> of prior values to base each new number on.
-          Then it selects integers <code>a_1, …, a_k</code>, the multipliers, and <code>m</code>,
+          An MRG first picks some number \(k\) of prior values to base each new number on.
+          Then it selects integers \(a_1, \ldots, a_k\), the multipliers, and \(m\),
           the modulus.
         </p>
         <p>
-          To start an MRG, choose <code>X_1</code> through <code>X_k</code> seed values. Each seed
+          To start an MRG, choose \(X_1\) through \(X_k\) seed values. Each seed
           value is multiplied by its own constant, and those values are summed. So, starting from
-          any <code>t &gt; k</code> (since all <code>k</code> seed values are needed first), the
-          <code>t</code>'th random number is
+          any \(t > k\) (since all \(k\) seed values are needed first), the
+          \(t\)'th random number is
         </p>
         <p class="equation">
           \[ X_t = (a_1 X_{t-1} + a_2 X_{t-2} + \cdots + a_k X_{t-k}) \ \text{mod} \ m \]
@@ -186,25 +186,25 @@
         <p>and then normalised the same way as an LCG:</p>
         <p class="equation">\[ U_t = \frac{X_t}{m}. \]</p>
 
-        <div id="mrg-widget" class="widget" data-widget-root></div>
+        <div id="mrg-widget" data-widget-root></div>
 
         <p>
           This method seems very similar to an LCG, so what makes it special? By careful selection
-          of the values <code>a_1</code> through <code>a_k</code> and <code>m</code>, we can reach
+          of the values \(a_1\) through \(a_k\) and \(m\), we can reach
           some very large periods.
         </p>
         <p>
           It's difficult to compute the period of an arbitrary arrangement of values, but the
           maximum possible period was characterised by Zierler (1959), through the theory of
           <strong>primitive polynomials</strong> over finite fields, and later applied specifically
-          to random number generators by L'Ecuyer: an order-<code>k</code> MRG reaches the maximum
-          possible period of <code>m^k − 1</code> exactly when <code>m</code> is prime and its
-          characteristic polynomial is primitive modulo <code>m</code> — the same shape of
-          condition an LCG needs (<code>m</code> prime, <code>a</code> a primitive root), just one
+          to random number generators by L'Ecuyer: an order-\(k\) MRG reaches the maximum
+          possible period of \(m^k - 1\) exactly when \(m\) is prime and its
+          characteristic polynomial is primitive modulo \(m\) — the same shape of
+          condition an LCG needs (\(m\) prime, \(a\) a primitive root), just one
           dimension higher.
         </p>
 
-        <div id="mrg-stream-widget" class="widget" data-widget-root></div>
+        <div id="mrg-stream-widget" data-widget-root></div>
 
         <p>
           This period is more than sufficient for simulation work. But all of this assumes we
@@ -254,43 +254,43 @@
 
         <p>
           Try it yourself: this first widget runs the stage-1 test live on the LCG from earlier —
-          pick values, set a rate, and watch the scatter fill in and the <code>χ²</code> statistic
+          pick values, set a rate, and watch the scatter fill in and the \(\chi^2\) statistic
           settle as more samples arrive.
         </p>
-        <div id="verify-lcg-1" class="widget" data-widget-root></div>
+        <div id="verify-lcg-1" data-widget-root></div>
 
         <p>
           And here's stage 2: pick a handful of seeds and a sample size, and this widget runs the
           stage-1 test independently for each seed, then plots every resulting statistic against
           the value it should average out to if the generator really is unbiased.
         </p>
-        <div id="verify-lcg-2" class="widget" data-widget-root></div>
+        <div id="verify-lcg-2" data-widget-root></div>
 
         <p>The same two stages, for the MRG:</p>
-        <div id="verify-mrg-1" class="widget" data-widget-root></div>
-        <div id="verify-mrg-2" class="widget" data-widget-root></div>
+        <div id="verify-mrg-1" data-widget-root></div>
+        <div id="verify-mrg-2" data-widget-root></div>
 
         <h3 id="period-importance-heading">The importance of large periods</h3>
         <p>
           Try this: in the MRG stage-2 widget above, using its own default values
-          (<code>m = 1000</code>, <code>a_1 = 7</code>, <code>a_2 = 5</code>, <code>a_3 = 3</code>,
-          seeds <code>1, 10, 20, 30, 40, 50, 60, 70</code>), raise "Samples per seed" from
-          <code>500</code> to <code>20,000</code> and click Run again. Watch the mean rocket up, far
-          past the <code>9</code> it should hover around.
+          (\(m = 1000\), \(a_1 = 7\), \(a_2 = 5\), \(a_3 = 3\),
+          seeds \(1, 10, 20, 30, 40, 50, 60, 70\)), raise "Samples per seed" from
+          \(500\) to \(20{,}000\) and click Run again. Watch the mean rocket up, far
+          past the \(9\) it should hover around.
         </p>
         <p>
           That's not the test breaking — it's the test correctly catching a real flaw. Every one of
-          those 8 default seeds sits on a cycle of exactly <code>12,400</code> steps: after
-          <code>12,400</code> outputs, this particular MRG returns to a state it has already visited
+          those 8 default seeds sits on a cycle of exactly \(12{,}400\) steps: after
+          \(12{,}400\) outputs, this particular MRG returns to a state it has already visited
           and repeats itself exactly, forever — the same thing that happened to the period-4 LCG
           example earlier on this page, just with a longer cycle. Ask for fewer samples than that and
           each run looks genuinely uniform. Ask for more than the period, and the run has nowhere new
           left to go: the same handful of values gets counted over and over, piling into the same
-          bins, and <code>χ²</code> reports that, correctly, as wildly non-uniform.
+          bins, and \(\chi^2\) reports that, correctly, as wildly non-uniform.
         </p>
         <p>
           This is exactly why the period sections earlier on this page made such a fuss about it. A
-          generator that looks statistically excellent across its first <code>12,400</code> numbers
+          generator that looks statistically excellent across its first \(12{,}400\) numbers
           can be statistically catastrophic on the very next one — and a real simulation that consumes
           billions of random numbers would hit that wall almost immediately. Raise the sample size far
           enough, and the two-stage test will eventually expose the period of any generator whose
