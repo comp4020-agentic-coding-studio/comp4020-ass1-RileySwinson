@@ -262,11 +262,22 @@ function buildModulusDetails() {
 }
 
 /**
- * Mounts the LCG walkthrough widget: editable a/c/m/seed fields, a
- * collapsed "what is modulus" aside, and the 9-slide dot-carousel above.
- * Every keystroke rebuilds the slide set from the current field values
- * (see buildSlides) and pushes it into the carousel without losing the
- * reader's place — js/dot-carousel.js keeps whatever step they're on.
+ * Mounts the "what is modulus?" aside as its own standalone element —
+ * kept outside the LCG widget's own container so it reads as page prose
+ * sitting below the widget, not as one more thing crammed inside it.
+ */
+export function mountModulusDetails(container) {
+  const detailsEl = buildModulusDetails();
+  container.replaceChildren(detailsEl);
+  typesetMath([detailsEl]);
+}
+
+/**
+ * Mounts the LCG walkthrough widget: editable a/c/m/seed fields and the
+ * 9-slide dot-carousel above. Every keystroke rebuilds the slide set from
+ * the current field values (see buildSlides) and pushes it into the
+ * carousel without losing the reader's place — js/dot-carousel.js keeps
+ * whatever step they're on.
  */
 export function mountLcgWidget(container, defaults) {
   const fields = {
@@ -278,7 +289,6 @@ export function mountLcgWidget(container, defaults) {
   const fieldList = Object.values(fields);
 
   const paramsEl = el("div", { className: "params" }, fieldList.map((f) => f.wrapper));
-  const detailsEl = buildModulusDetails();
   const carouselEl = el("div", { className: "widget-computation" });
   const allStepsBody = el("div", {});
   const allStepsEl = el("details", { className: "all-steps-details" }, [
@@ -287,8 +297,8 @@ export function mountLcgWidget(container, defaults) {
   ]);
 
   container.replaceChildren();
-  container.append(paramsEl, detailsEl, carouselEl, allStepsEl);
-  typesetMath([paramsEl, detailsEl]);
+  container.append(paramsEl, carouselEl, allStepsEl);
+  typesetMath([paramsEl]);
 
   function readParams() {
     return {

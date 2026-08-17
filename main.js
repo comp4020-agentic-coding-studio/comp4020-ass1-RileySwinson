@@ -1,4 +1,4 @@
-import { mountLcgWidget } from "./js/lcg-widget.js";
+import { mountLcgWidget, mountModulusDetails } from "./js/lcg-widget.js";
 import { mountLcgStreamWidget } from "./js/lcg-stream-widget.js";
 import { mountMrgWidget } from "./js/mrg-widget.js";
 import { mountMrgStreamWidget } from "./js/mrg-stream-widget.js";
@@ -54,6 +54,9 @@ const MRG_VERIFY_2_DEFAULTS = {
 
 const lcgRoot = document.getElementById("lcg-widget");
 if (lcgRoot) mountLcgWidget(lcgRoot, LCG_DEFAULTS);
+
+const modulusDetailsRoot = document.getElementById("lcg-modulus-details");
+if (modulusDetailsRoot) mountModulusDetails(modulusDetailsRoot);
 
 const streamRoot = document.getElementById("lcg-stream-widget");
 if (streamRoot) mountLcgStreamWidget(streamRoot, STREAM_DEFAULTS);
