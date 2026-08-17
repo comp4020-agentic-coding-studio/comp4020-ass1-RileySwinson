@@ -3,7 +3,7 @@ import { buildField, buildRateField } from "./field.js";
 import { parseBigIntField, validateParams, mod } from "./recurrence.js";
 
 const MAX_CONSOLE_LINES = 200;
-const TARGET_REPETITIONS = 6;
+const TARGET_EXTRA_STEPS = 6;
 const MAX_SEARCH_TICKS = 1000;
 
 function fmt(value) {
@@ -82,14 +82,14 @@ export function mountLcgStreamWidget(container, defaults) {
     // after it is mathematically guaranteed to repeat the values after
     // that earlier match too (same input, same output, forever) — so one
     // matched state is enough to know the period exactly. But "provably
-    // true" isn't the same as "visibly true": keep running for several
-    // more full cycles so the repetition is something you actually watch
-    // happen, not just a claim on the screen.
+    // true" isn't the same as "visibly true": keep running a few more
+    // steps past the match so the repetition is something you actually
+    // watch play out, not just a claim on the screen.
     if (state.period === null && state.seen.has(key)) {
       state.period = state.count;
-      state.targetCount = state.period * TARGET_REPETITIONS;
+      state.targetCount = state.count + TARGET_EXTRA_STEPS;
       appendLine(
-        `↺ repeated — the period is ${state.period}. Watching ${TARGET_REPETITIONS} full cycles before stopping…`,
+        `↺ repeated — the period is ${state.period}. Watching ${TARGET_EXTRA_STEPS} more steps before stopping…`,
         "console-line-repeat",
       );
     } else if (state.period === null) {
@@ -98,7 +98,7 @@ export function mountLcgStreamWidget(container, defaults) {
 
     state.current = next;
     const output = Number(next) / Number(state.m);
-    appendLine(`X_${state.count} = ${fmt(next)}   →   U_${state.count} ≈ ${output.toFixed(5)}`);
+    appendLine(`X_${state.count} = ${fmt(next)}   ->   U_${state.count} ≈ ${output.toFixed(5)}`);
 
     if (state.period === null && state.count >= MAX_SEARCH_TICKS) {
       appendLine(
@@ -109,7 +109,7 @@ export function mountLcgStreamWidget(container, defaults) {
       state.stopped = true;
       stopTimer();
     } else if (state.period !== null && state.count >= state.targetCount) {
-      statusEl.textContent = `Stopped after ${TARGET_REPETITIONS} cycles — period ${state.period}`;
+      statusEl.textContent = `Stopped ${TARGET_EXTRA_STEPS} steps after the repeat — period ${state.period}`;
       state.stopped = true;
       stopTimer();
     }

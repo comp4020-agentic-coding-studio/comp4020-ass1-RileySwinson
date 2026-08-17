@@ -4,7 +4,7 @@ import { mountTermList } from "./term-list.js";
 import { parseBigIntField, validateParams, stepGenerator } from "./recurrence.js";
 
 const MAX_CONSOLE_LINES = 200;
-const TARGET_REPETITIONS = 6;
+const TARGET_EXTRA_STEPS = 6;
 const MAX_SEARCH_TICKS = 1000;
 
 function fmt(value) {
@@ -78,9 +78,9 @@ export function mountMrgStreamWidget(container, defaults) {
     if (state.period === null) {
       if (state.seen.has(key)) {
         state.period = state.count;
-        state.targetCount = state.period * TARGET_REPETITIONS;
+        state.targetCount = state.count + TARGET_EXTRA_STEPS;
         appendLine(
-          `↺ repeated — the period is ${state.period}. Watching ${TARGET_REPETITIONS} full cycles before stopping…`,
+          `↺ repeated — the period is ${state.period}. Watching ${TARGET_EXTRA_STEPS} more steps before stopping…`,
           "console-line-repeat",
         );
       } else {
@@ -88,7 +88,7 @@ export function mountMrgStreamWidget(container, defaults) {
       }
     }
 
-    appendLine(`X_${result.t} = ${fmt(result.result)}   →   U_${result.t} ≈ ${result.output.toFixed(5)}`);
+    appendLine(`X_${result.t} = ${fmt(result.result)}   ->   U_${result.t} ≈ ${result.output.toFixed(5)}`);
 
     if (state.period === null && state.count >= MAX_SEARCH_TICKS) {
       appendLine(
@@ -99,7 +99,7 @@ export function mountMrgStreamWidget(container, defaults) {
       state.stopped = true;
       stopTimer();
     } else if (state.period !== null && state.count >= state.targetCount) {
-      statusEl.textContent = `Stopped after ${TARGET_REPETITIONS} cycles — period ${state.period}`;
+      statusEl.textContent = `Stopped ${TARGET_EXTRA_STEPS} steps after the repeat — period ${state.period}`;
       state.stopped = true;
       stopTimer();
     }
