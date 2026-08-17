@@ -1,6 +1,7 @@
 import { el, svgEl, axisPlot } from "./dom.js";
 import { buildRateField } from "./field.js";
 import { createChiSquaredTracker } from "./chi-squared.js";
+import { typesetMath } from "./mathjax.js";
 
 const BIN_COUNT = 10;
 const MAX_VISIBLE_POINTS = 150;
@@ -30,7 +31,10 @@ export function mountVerifyEngine(container, { idPrefix, defaultRate = 5, comput
   );
   const pointsGroup = svgEl("g", { class: "verify-points" });
   svg.append(pointsGroup);
-  const plotEl = axisPlot(svg, { xLabel: "sample order (most recent, left to right) →", yLabel: "U_t value" });
+  const plotEl = axisPlot(svg, {
+    xLabel: "sample order, most recent to the right →",
+    yLabel: "\\(U_t\\) value",
+  });
 
   const nStat = el("p", { className: "verify-stat" });
   const meanStat = el("p", { className: "verify-stat" });
@@ -43,6 +47,7 @@ export function mountVerifyEngine(container, { idPrefix, defaultRate = 5, comput
   const controls = el("div", { className: "carousel-controls" }, [restartButton, statusEl, pauseButton]);
 
   container.replaceChildren(rateField.wrapper, plotEl, statsEl, controls);
+  typesetMath([plotEl]);
 
   let timer = null;
   let running = true;

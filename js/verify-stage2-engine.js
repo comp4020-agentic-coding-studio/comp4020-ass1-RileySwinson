@@ -1,5 +1,6 @@
 import { el, svgEl, axisPlot } from "./dom.js";
 import { createChiSquaredTracker } from "./chi-squared.js";
+import { typesetMath } from "./mathjax.js";
 
 const BIN_COUNT = 10;
 const DEGREES_OF_FREEDOM = BIN_COUNT - 1;
@@ -90,9 +91,23 @@ export function mountVerifyStage2Engine(
     referenceLine,
     pointsGroup,
   );
-  const plotEl = axisPlot(svg, { xLabel: "seed (in the order entered) →", yLabel: "χ² statistic" });
+  const plotEl = axisPlot(svg, {
+    xLabel: "seeds, left to right, in order entered",
+    yLabel: "\\(\\chi^2\\) statistic",
+  });
 
-  container.replaceChildren(paramsEl, el("div", { className: "verify-run" }, [runButton, summaryEl]), plotEl);
+  const legendEl = el("p", { className: "verify-legend" }, [
+    el("span", { className: "verify-legend-swatch" }),
+    ` expected mean if uniform: \\(\\chi^2 = ${DEGREES_OF_FREEDOM}\\)`,
+  ]);
+
+  container.replaceChildren(
+    paramsEl,
+    el("div", { className: "verify-run" }, [runButton, summaryEl]),
+    plotEl,
+    legendEl,
+  );
+  typesetMath([plotEl, legendEl]);
 
   function clearErrors() {
     seedListError.textContent = "";
@@ -118,7 +133,7 @@ export function mountVerifyStage2Engine(
     );
 
     const mean = statistics.reduce((a, b) => a + b, 0) / statistics.length;
-    summaryEl.textContent = `${statistics.length} repetitions — mean χ² ≈ ${mean.toFixed(2)} (expect ≈ ${DEGREES_OF_FREEDOM} if uniform)`;
+    summaryEl.textContent = `mean χ² ≈ ${mean.toFixed(2)} (expect ≈ ${DEGREES_OF_FREEDOM} if uniform)`;
   }
 
   function run() {
